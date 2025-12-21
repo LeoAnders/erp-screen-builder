@@ -1,61 +1,66 @@
 ## ERP Screen Builder (Web)
 
-Esta é a aplicação frontend principal do **ERP Screen Builder**, construída com Next.js 15.
+Uma ferramenta visual focada em produtividade para a criação de interfaces de ERP. Este projeto permite gerenciar times, projetos e arquivos de interface, garantindo integridade de dados e versionamento.
 
-### Desenvolvimento
+Construído com **Next.js (App Router)**, **PostgreSQL** e **Prisma**, focado em performance e escalabilidade.
 
-Para rodar o app localmente:
+### Requisitos
 
-1. **Suba o Postgres** (na raiz do repo):
+- Docker / Docker Compose (Postgres)
+- Node 20+ (NVM recomendado)
 
-```bash
-docker compose -f docker/docker-compose.yml up -d
+### Setup rápido
+
+1. Inicie a Infraestrutura Suba o container do banco de dados PostgreSQL:
+   ```bash
+   npm run services:up
+   ```
+2. Configure o Ambiente Certifique-se de que o arquivo .env na pasta apps/web esteja configurado:
+   ```env
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/erpscreenbuilder"
+   ```
+3. Instale e Configure o Banco Instale as dependências, gere o cliente do banco e popule com dados iniciais:
+   ```bash
+   npm install
+   npm run db:setup
+   ```
+4. Rode a Aplicação:
+   ```bash
+   npm run dev
+   ```
+   App: http://localhost:3000
+
+### Estrutura do Projeto
+
+- /`app`: Rotas e layouts da aplicação (Next.js App Router).
+- `/components`: Biblioteca de componentes de UI e blocos do editor visual.
+- `/lib`: Configurações de infraestrutura (Prisma Client, Auth, Validadores).
+- `/prisma`: Definições do esquema do banco de dados e scripts de seed.
+
+### Detalhes Técnicos
+
+#### Stack
+
+- Frontend: Next.js 14+, TailwindCSS, ShadcnUI.
+- Backend: Next.js Route Handlers.
+- Database: PostgreSQL com Prisma ORM.
+
+#### Banco de Dados (Schema)
+
+O projeto utiliza um modelo relacional estrito para garantir a consistência:
+
+- Times & Projetos: Relação protegida (Restrict) para evitar exclusão acidental de histórico.
+- Arquivos: Armazenam a estrutura visual em JSONB versionado. Ao deletar um projeto, seus arquivos são removidos em cascata (Cascade).
+- Dados Iniciais (Seed): O sistema já nasce com times padrão ("Squad Financeiro", "Core Team", etc) para facilitar o desenvolvimento.
+
+### Estrutura do Projeto
+
 ```
-
-2. **Configure o `.env`** (este app espera `DATABASE_URL`):
-
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/erpscreenbuilder"
+apps/web
+├── app/            # Rotas, layouts e páginas (Next.js)
+├── components/     # Componentes de UI
+├── lib/            # Prisma, configs globais
+├── prisma/         # schema.prisma, seed.ts
+├── public/         # Assets estáticos
+└── eslint.config.mjs
 ```
-
-3. **Instale deps e gere o Prisma Client**:
-
-```bash
-npm install
-npx prisma generate
-```
-
-4. **Inicie o servidor**:
-
-```bash
-npm run dev
-```
-
-O app estará disponível em [http://localhost:3000](http://localhost:3000).
-
-### Scripts úteis
-
-- **Dev**: `npm run dev`
-- **Lint**: `npm run lint`
-- **Prisma**:
-  - `npx prisma validate`
-  - `npx prisma generate`
-  - `npx prisma migrate dev`
-
-### Design System
-
-- **Tema:** Dark Mode por padrão.
-- **Cores Base:** Canvas `#1e1e1e`, Painéis `#2c2c2c`.
-- **Componentes:** Baseados em shadcn/ui.
-
-### Organização
-
-- `app/`: Rotas, layouts e páginas.
-- `components/`: Componentes React (UI, layouts de seção, editor).
-- `lib/`: Configurações globais (Prisma, Auth, Query Client).
-- `hooks/`: Hooks customizados para lógica reutilizável.
-
-### Notas (Prisma v7)
-
-- O Prisma v7 usa **Driver Adapter** com Postgres; a conex\u00e3o \u00e9 criada via `pg` (`Pool`) e injetada no client em `lib/prisma.ts`.
-- A configura\u00e7\u00e3o de datasource/migrations roda via `prisma.config.ts` (carrega `.env`).
