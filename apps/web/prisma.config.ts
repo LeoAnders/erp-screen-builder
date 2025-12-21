@@ -1,7 +1,7 @@
-import { config as loadEnv } from "dotenv"
-import { defineConfig, env } from "@prisma/config"
+import { config as loadEnv } from "dotenv";
+import { defineConfig, env } from "@prisma/config";
 
-loadEnv()
+loadEnv();
 
 export default defineConfig({
   schema: "./prisma/schema.prisma",
@@ -10,6 +10,6 @@ export default defineConfig({
   },
   migrations: {
     path: "./prisma/migrations",
+    seed: 'ts-node --compiler-options {"module":"CommonJS"} ./prisma/seed.ts',
   },
-})
-
+});

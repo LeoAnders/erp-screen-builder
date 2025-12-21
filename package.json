@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "scripts": {
+    "services:up": "docker compose -f docker/docker-compose.yml up -d",
+    "services:stop": "docker compose -f docker/docker-compose.yml stop",
+    "services:down": "docker compose -f docker/docker-compose.yml down"
+  }
+}
