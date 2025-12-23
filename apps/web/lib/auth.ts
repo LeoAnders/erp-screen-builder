@@ -14,6 +14,6 @@ requiredEnv.forEach((key) => {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  session: { strategy: "database" },
   ...authConfig,
 });
