@@ -31,6 +31,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { PageContainer } from "@/components/layout/page-container";
 
 type RecentItem = {
   id: string;
@@ -203,21 +204,6 @@ function RecentCard({ item }: { item: RecentItem }) {
             >
               {item.icon}
             </div>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("open menu", item.id);
-              }}
-              aria-label="Abrir menu"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
           </div>
 
           <div className="mt-3">
@@ -276,124 +262,120 @@ export default function Page() {
   }, [api, updateArrows]);
 
   return (
-    <div className="w-full">
-      <div className="mx-auto flex flex-col gap-8 px-8 pt-6 max-w-6xl">
-        <div className="flex items-center justify-between space-y-2">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Início</h2>
-            <p className="text-muted-foreground">
-              Visão geral do workspace{" "}
-              <span className="text-primary font-medium">
-                Nome do Workspace
-              </span>
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Novo Projeto
-            </Button>
-          </div>
+    <PageContainer className="flex flex-col gap-8">
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Início</h2>
+          <p className="text-muted-foreground">
+            Visão geral do workspace{" "}
+            <span className="text-primary font-medium">Nome do Workspace</span>
+          </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Continuar de onde parou</h3>
-            <Button
-              asChild
-              variant="link"
-              className="text-muted-foreground cursor-pointer transition-colors hover:text-primary hover:underline underline-offset-4"
-            >
-              <Link href="/projects">Ver todos os projetos &rarr;</Link>
-            </Button>
-          </div>
-        </div>
-
-        <Carousel
-          className="relative w-full"
-          setApi={setApi}
-          opts={{
-            align: "start",
-            dragFree: true,
-            containScroll: "trimSnaps",
-          }}
-          plugins={[
-            WheelGesturesPlugin({
-              forceWheelAxis: "x",
-            }),
-          ]}
-        >
-          {canPrev && (
-            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-14 bg-linear-to-r from-background to-transparent" />
-          )}
-
-          {canNext && (
-            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-14 bg-linear-to-l from-background to-transparent" />
-          )}
-
-          <CarouselContent className="-ml-3">
-            {recentlyVisited.map((item) => (
-              <CarouselItem
-                key={item.id}
-                className="pl-3 shrink-0 basis-[200px] sm:basis-[220px] lg:basis-[240px]"
-              >
-                <RecentCard item={item} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-
-          <CarouselArrows api={api} canPrev={canPrev} canNext={canNext} />
-        </Carousel>
-
-        <Separator className="my-4" />
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4 border-none shadow-none bg-transparent">
-            <CardHeader className="px-0 pt-0">
-              <CardTitle>Atividade Recente</CardTitle>
-              <CardDescription>
-                O que o time produziu nas últimas 24 horas.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="px-0">
-              <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
-                  <div className="flex items-start gap-4" key={i}>
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={`/avatars/0${i}.png`} alt="Avatar" />
-                      <AvatarFallback>U{i}</AvatarFallback>
-                    </Avatar>
-
-                    <div className="grid gap-1">
-                      <p className="text-sm font-medium leading-none">
-                        {i === 1
-                          ? "Carlos Silva"
-                          : i === 2
-                            ? "Ana Julia"
-                            : "Roberto"}
-                        <span className="text-muted-foreground font-normal">
-                          {" "}
-                          editou o arquivo{" "}
-                        </span>
-                        <span className="font-medium">User_Profile_Page</span>
-                      </p>
-
-                      <p className="text-xs text-muted-foreground">
-                        {i === 1
-                          ? "Há 10 minutos"
-                          : i === 2
-                            ? "Há 2 horas"
-                            : "Há 5 horas"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex items-center gap-2">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" /> Novo Projeto
+          </Button>
         </div>
       </div>
-    </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Continuar de onde parou</h3>
+          <Button
+            asChild
+            variant="link"
+            className="text-muted-foreground cursor-pointer transition-colors hover:text-primary hover:underline underline-offset-4"
+          >
+            <Link href="/projects">Ver todos os projetos &rarr;</Link>
+          </Button>
+        </div>
+      </div>
+
+      <Carousel
+        className="relative w-full"
+        setApi={setApi}
+        opts={{
+          align: "start",
+          dragFree: true,
+          containScroll: "trimSnaps",
+        }}
+        plugins={[
+          WheelGesturesPlugin({
+            forceWheelAxis: "x",
+          }),
+        ]}
+      >
+        {canPrev && (
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-14 bg-linear-to-r from-background to-transparent" />
+        )}
+
+        {canNext && (
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-14 bg-linear-to-l from-background to-transparent" />
+        )}
+
+        <CarouselContent className="-ml-3">
+          {recentlyVisited.map((item) => (
+            <CarouselItem
+              key={item.id}
+              className="pl-3 shrink-0 basis-[200px] sm:basis-[220px] lg:basis-[240px]"
+            >
+              <RecentCard item={item} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        <CarouselArrows api={api} canPrev={canPrev} canNext={canNext} />
+      </Carousel>
+
+      <Separator className="my-4" />
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4 border-none shadow-none bg-transparent">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle>Atividade Recente</CardTitle>
+            <CardDescription>
+              O que o time produziu nas últimas 24 horas.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="px-0">
+            <div className="space-y-6">
+              {[1, 2, 3].map((i) => (
+                <div className="flex items-start gap-4" key={i}>
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={`/avatars/0${i}.png`} alt="Avatar" />
+                    <AvatarFallback>U{i}</AvatarFallback>
+                  </Avatar>
+
+                  <div className="grid gap-1">
+                    <p className="text-sm font-medium leading-none">
+                      {i === 1
+                        ? "Carlos Silva"
+                        : i === 2
+                          ? "Ana Julia"
+                          : "Roberto"}
+                      <span className="text-muted-foreground font-normal">
+                        {" "}
+                        editou o arquivo{" "}
+                      </span>
+                      <span className="font-medium">User_Profile_Page</span>
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      {i === 1
+                        ? "Há 10 minutos"
+                        : i === 2
+                          ? "Há 2 horas"
+                          : "Há 5 horas"}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </PageContainer>
   );
 }
