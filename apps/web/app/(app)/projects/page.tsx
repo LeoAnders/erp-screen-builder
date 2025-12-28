@@ -3,18 +3,8 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  LayoutGrid,
-  List,
-  Plus,
-  RefreshCcw,
-  TriangleAlert,
-  ChevronDown,
-  FolderOpen,
-} from "lucide-react";
+import { Plus, FolderOpen } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Table,
   TableBody,
@@ -33,43 +23,12 @@ import {
   ProjectFilePreview,
 } from "@/components/projects/project-types";
 import { PageContainer } from "@/components/layout/page-container";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-type ApiError = { error: { message: string } };
-
-function getErrorMessage(error: unknown, fallback: string) {
-  if (!error) return fallback;
-  if (error instanceof Error) return error.message;
-  if (typeof error === "object" && error && "error" in error) {
-    const apiError = error as ApiError;
-    return apiError.error?.message ?? fallback;
-  }
-  return fallback;
-}
-
-function formatRelative(dateString?: string) {
-  if (!dateString) return undefined;
-
-  const date = new Date(dateString);
-  const diffMs = date.getTime() - Date.now();
-  const diffMins = Math.round(diffMs / 60000);
-
-  const formatter = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
-  if (Math.abs(diffMins) < 60) return formatter.format(diffMins, "minute");
-  const diffHours = Math.round(diffMins / 60);
-  if (Math.abs(diffHours) < 24) return formatter.format(diffHours, "hour");
-  const diffDays = Math.round(diffHours / 24);
-  return formatter.format(diffDays, "day");
-}
+import { PageHeader } from "@/components/layout/page-header";
+import { ErrorState } from "@/components/ui/error-state";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ApiError, formatRelative, getErrorMessage } from "@/lib/utils";
+import { useSorting } from "@/hooks/use-sorting";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 
 function makeMockProjects(): Project[] {
   const now = Date.now();
@@ -187,21 +146,13 @@ export default function ProjectsPage() {
   const projectsLoading = projectsQuery.isLoading || projectsQuery.isPending;
   const items = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   // Ordena os projetos conforme critérios selecionados na UI.
-  const sortedItems = useMemo(() => {
-    const sorted = [...items];
-
-    sorted.sort((a, b) => {
-      if (sortBy === "alphabetical") {
-        return a.name.localeCompare(b.name, "pt-BR");
-      }
-
-      const aDate = new Date(a.updatedAt ?? a.createdAt ?? 0).getTime();
-      const bDate = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime();
-      return bDate - aDate;
-    });
-
-    return order === "oldest" ? sorted.reverse() : sorted;
-  }, [items, order, sortBy]);
+  const sortedItems = useSorting({
+    items,
+    sortBy,
+    order,
+    getDate: (p) => p.updatedAt ?? p.createdAt,
+    getName: (p) => p.name,
+  });
   const hasProjects = items.length > 0;
 
   let content: ReactNode;
@@ -220,7 +171,13 @@ export default function ProjectsPage() {
   } else if (projectsLoading) {
     content = showCards ? <ProjectCardsSkeleton /> : <ProjectTableSkeleton />;
   } else if (!hasProjects) {
-    content = <ProjectsEmptyState />;
+    content = (
+      <EmptyState
+        icon={FolderOpen}
+        title="Nenhum projeto encontrado"
+        description='Crie seu primeiro projeto clicando em "Novo Projeto".'
+      />
+    );
   } else if (showCards) {
     content = (
       <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
@@ -261,141 +218,26 @@ export default function ProjectsPage() {
     );
   }
 
-  const sortLabel =
-    sortBy === "alphabetical" ? "Alfabética" : "Última modificação";
-  const orderLabel =
-    order === "newest" ? "Mais novos primeiro" : "Mais antigos primeiro";
-
   return (
     <PageContainer className="flex h-full flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">Projetos</h1>
-          <p className="text-muted-foreground text-sm">
-            Gerencie e acesse os projetos da equipe
-          </p>
-        </div>
+      <PageHeader
+        title="Projetos"
+        description="Gerencie e acesse os projetos da equipe"
+        actionLabel="Novo Projeto"
+        actionIcon={<Plus className="size-4" />}
+      />
 
-        <Button size="sm" className="gap-2">
-          <Plus className="size-4" />
-          Novo Projeto
-        </Button>
-      </div>
-
-      <div className="flex items-center justify-end gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="min-w-[220px] justify-between gap-2"
-            >
-              <span className="truncate">{sortLabel}</span>
-              <ChevronDown className="size-4 shrink-0 opacity-70" />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end" className="w-[240px]">
-            <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
-            <DropdownMenuRadioGroup
-              value={sortBy}
-              onValueChange={(val) =>
-                setSortBy(val as "alphabetical" | "lastModified")
-              }
-            >
-              <DropdownMenuRadioItem value="alphabetical">
-                Alfabética
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="lastModified">
-                Última modificação
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuLabel>Ordem</DropdownMenuLabel>
-            <DropdownMenuRadioGroup
-              value={order}
-              onValueChange={(val) => setOrder(val as "newest" | "oldest")}
-            >
-              <DropdownMenuRadioItem value="oldest">
-                Mais antigas primeiro
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="newest">
-                Mais novas primeiro
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <ToggleGroup
-          type="single"
-          value={view}
-          onValueChange={(val) => val && setView(val as "cards" | "list")}
-        >
-          <ToggleGroupItem value="cards" aria-label="Ver em cards">
-            <LayoutGrid className="size-4" />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="list" aria-label="Ver em lista">
-            <List className="size-4" />
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
+      <ListToolbar
+        sortBy={sortBy}
+        order={order}
+        view={view}
+        onSortByChange={(v) => setSortBy(v)}
+        onOrderChange={(v) => setOrder(v)}
+        onViewChange={(v) => setView(v)}
+      />
 
       <div className="flex-1 flex flex-col">{content}</div>
     </PageContainer>
-  );
-}
-
-function ErrorState({
-  title,
-  message,
-  onRetry,
-}: {
-  title: string;
-  message: string;
-  onRetry?: () => void;
-}) {
-  return (
-    <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
-      <TriangleAlert className="size-5 text-destructive" />
-      <div className="space-y-1">
-        <p className="font-medium text-destructive">{title}</p>
-        <p className="text-sm text-destructive/90">{message}</p>
-        {onRetry ? (
-          <Button
-            onClick={onRetry}
-            size="sm"
-            variant="outline"
-            className="mt-2 gap-2"
-          >
-            <RefreshCcw className="size-4" />
-            Tentar novamente
-          </Button>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function ProjectsEmptyState() {
-  return (
-    <div className="grid flex-1 place-items-center">
-      <div className="flex max-w-md flex-col items-center px-6 text-center">
-        {/* Ícone */}
-        <FolderOpen className="mb-5 size-11 text-muted-foreground/70" />
-
-        <h2 className="text-[1.25rem] font-semibold tracking-tight text-foreground">
-          Nenhum projeto encontrado
-        </h2>
-
-        <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-          Crie seu primeiro projeto clicando em{" "}
-          <span className="font-medium text-foreground/80">“Novo Projeto”</span>
-          .
-        </p>
-      </div>
-    </div>
   );
 }
 

@@ -15,3 +15,12 @@ export type Project = {
   previews: ProjectFilePreview[];
 };
 
+export type ProjectFile = {
+  id: string;
+  name: string;
+  projectId: string;
+  kind?: "image" | "doc" | "frame";
+  createdAt?: string;
+  updatedAt?: string;
+  editedBy?: { name: string; avatarSrc?: string };
+};

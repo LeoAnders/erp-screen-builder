@@ -1,16 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import {
-  FolderOpen,
-  Plus,
-  FileText,
-  Image as ImageIcon,
-  LayoutGrid,
-} from "lucide-react";
+import { FolderOpen, Plus } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { KindIcon } from "@/components/projects/kind-icon";
 import { ProjectFilePreview } from "@/components/projects/project-types";
 
 export type ProjectCardProps = {
@@ -24,9 +19,6 @@ export type ProjectCardProps = {
 };
 
 function PreviewTile({ p }: { p: ProjectFilePreview }) {
-  const Icon =
-    p.kind === "image" ? ImageIcon : p.kind === "doc" ? FileText : LayoutGrid;
-
   const description =
     p.description ?? "Descrição do arquivo não disponível no momento.";
   return (
@@ -38,7 +30,7 @@ function PreviewTile({ p }: { p: ProjectFilePreview }) {
     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
   "
     >
-      <Icon className="h-5 w-5" />
+      <KindIcon kind={p.kind ?? "doc"} className="h-5 w-5" />
       <div className="pointer-events-none absolute inset-0 rounded-lg bg-background/30 backdrop-blur-sm opacity-0 transition-opacity duration-200 group-hover/preview:opacity-100" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 rounded-b-lg bg-linear-to-t from-background/80 via-background/40 to-transparent p-2 text-left text-xs font-medium opacity-0 transition-all duration-200 group-hover/preview:opacity-100 sm:text-sm">
         <span className="leading-snug text-muted-foreground/90 line-clamp-2">

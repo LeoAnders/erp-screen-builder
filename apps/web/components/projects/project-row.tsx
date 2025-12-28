@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Image as ImageIcon, LayoutGrid } from "lucide-react";
-
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { KindIcon } from "@/components/projects/kind-icon";
 import { ProjectFilePreview } from "@/components/projects/project-types";
 
 export type ProjectRowProps = {
@@ -102,17 +101,4 @@ function MiniPreviewTile({ preview }: { preview: ProjectFilePreview }) {
       <div className="pointer-events-none absolute inset-0" />
     </div>
   );
-}
-
-function KindIcon({
-  kind,
-  className,
-}: {
-  kind?: ProjectFilePreview["kind"];
-  className?: string;
-}) {
-  const Icon =
-    kind === "image" ? ImageIcon : kind === "doc" ? FileText : LayoutGrid;
-
-  return <Icon className={className} />;
 }
