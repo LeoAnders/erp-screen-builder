@@ -153,3 +153,24 @@
 .animate-shimmer {
   animation: shimmer 1.25s linear infinite;
 }
+
+.main-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--color-muted) var(--color-background); /* Firefox */
+  overscroll-behavior: contain;
+}
+
+.main-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+.main-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--color-muted);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}

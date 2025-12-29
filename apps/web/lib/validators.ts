@@ -5,8 +5,10 @@ export const createTeamSchema = z.object({
   description: z.string().optional(),
 });
 
-const UUID_REGEX =
+export const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export const isUuid = (value: string) => UUID_REGEX.test(value);
 
 export const createProjectSchema = z.object({
   name: z.string().min(1, "name is required"),
