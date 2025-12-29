@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 type PageHeaderProps = {
   title: string;
-  description?: string;
+  description?: ReactNode;
   actionLabel?: string;
   actionIcon?: ReactNode;
   onActionClick?: () => void;

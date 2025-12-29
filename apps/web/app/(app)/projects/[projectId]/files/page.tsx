@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { FileText, Plus } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { FileCard } from "@/components/projects/file-card";
 import { FileRow } from "@/components/projects/file-row";
-import type { ProjectFile } from "@/components/projects/project-types";
+import type { Project, ProjectFile } from "@/components/projects/project-types";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ApiError, formatRelative, getErrorMessage } from "@/lib/utils";
@@ -141,6 +141,7 @@ async function fetchFiles(projectId: string): Promise<ProjectFile[]> {
 export default function ProjectFilesPage() {
   const params = useParams<{ projectId: string }>();
   const projectId = params?.projectId;
+  const queryClient = useQueryClient();
 
   // Proteger contra parâmetros ausentes
   if (!projectId) {
@@ -194,6 +195,12 @@ export default function ProjectFilesPage() {
   });
 
   const hasFiles = items.length > 0;
+
+  const projectLabel = useMemo(() => {
+    const projects = queryClient.getQueryData<Project[]>(["projects"]);
+    const projectName = projects?.find((project) => project.id === projectId)?.name;
+    return projectName ?? `Projeto ${shortId(projectId)}`;
+  }, [projectId, queryClient]);
 
   let content;
 
@@ -254,7 +261,12 @@ export default function ProjectFilesPage() {
     <PageContainer className="flex h-full flex-col gap-6">
       <PageHeader
         title="Arquivos do Projeto"
-        description="Visualize e gerencie os arquivos do projeto"
+        description={
+          <>
+            <span className="font-semibold text-foreground">{projectLabel}</span>{" "}
+            · Visualize e gerencie os arquivos do projeto
+          </>
+        }
         actionLabel="Novo Arquivo"
         actionIcon={<Plus className="size-4" />}
       />
@@ -321,4 +333,10 @@ function FileTableSkeleton() {
       </TableBody>
     </Table>
   );
+}
+
+function shortId(value: string | undefined): string {
+  if (!value) return "";
+  if (value.length > 12) return value.slice(0, 8);
+  return value;
 }

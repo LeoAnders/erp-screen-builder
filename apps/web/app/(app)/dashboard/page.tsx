@@ -183,12 +183,7 @@ export default function Page() {
 
   return (
     <PageContainer className="flex h-full flex-col gap-6">
-      <PageHeader
-        title="Início"
-        description="Visão geral do workspace"
-        actionLabel="Novo Projeto"
-        actionIcon={<Plus className="size-4" />}
-      />
+      <PageHeader title="Início" description="Visão geral do workspace" />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -246,7 +241,7 @@ export default function Page() {
           <CardHeader className="px-0 pt-0">
             <CardTitle>Atividade Recente</CardTitle>
             <CardDescription>
-              O que o time produziu nas últimas 24 horas.
+              Últimas atualizações feitas pelo time.
             </CardDescription>
           </CardHeader>
 
