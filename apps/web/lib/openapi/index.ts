@@ -30,6 +30,15 @@ const FileUpdateResponse = registry.register(
   FileUpdateResponseSchema
 );
 
+const ProjectMeta = registry.register(
+  "ProjectMeta",
+  z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    teamId: z.string().uuid(),
+  })
+);
+
 const ListTeamsResponse = registry.register(
   "ListTeamsResponse",
   z.object({ items: z.array(Team) })
@@ -42,7 +51,10 @@ const ListProjectsResponse = registry.register(
 
 const ListFilesResponse = registry.register(
   "ListFilesResponse",
-  z.object({ items: z.array(FileListItem) })
+  z.object({
+    project: ProjectMeta,
+    items: z.array(FileListItem),
+  })
 );
 
 const FileCreateResponse = registry.register(
@@ -131,6 +143,14 @@ registry.registerPath({
       description: "Unauthorized",
       content: { "application/json": { schema: ApiError } },
     },
+    403: {
+      description: "Forbidden - Access denied to personal team",
+      content: { "application/json": { schema: ApiError } },
+    },
+    404: {
+      description: "Team not found",
+      content: { "application/json": { schema: ApiError } },
+    },
   },
 });
 
@@ -193,6 +213,14 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized",
+      content: { "application/json": { schema: ApiError } },
+    },
+    403: {
+      description: "Forbidden",
+      content: { "application/json": { schema: ApiError } },
+    },
+    404: {
+      description: "Project not found",
       content: { "application/json": { schema: ApiError } },
     },
   },

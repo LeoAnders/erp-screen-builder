@@ -8,6 +8,7 @@ import {
   requireSameOrigin,
   requireSession,
 } from "@/lib/api-helpers";
+import { getSessionUserId } from "@/lib/session";
 
 type FileResponseSource = {
   id: string;
@@ -43,12 +44,25 @@ export async function GET(
   if ("error" in sessionResult) return sessionResult.error;
 
   try {
+    const userId = await getSessionUserId(sessionResult.session);
+    if (!userId) {
+      return jsonError(401, "UNAUTHORIZED", "User not found");
+    }
+
     const file = await prisma.file.findUnique({
       where: { id },
+      include: { project: { include: { team: true } } },
     });
 
     if (!file) {
       return jsonError(404, "FILE_NOT_FOUND", "File not found");
+    }
+
+    if (
+      file.project.team.type === "personal" &&
+      file.project.team.ownerId !== userId
+    ) {
+      return jsonError(403, "FORBIDDEN", "Access denied to this file");
     }
 
     return NextResponse.json(mapFileToResponse(file));
@@ -74,6 +88,27 @@ export async function PUT(
   if ("error" in parsed) return parsed.error;
 
   try {
+    const userId = await getSessionUserId(sessionResult.session);
+    if (!userId) {
+      return jsonError(401, "UNAUTHORIZED", "User not found");
+    }
+
+    const fileTeam = await prisma.file.findUnique({
+      where: { id },
+      select: { project: { select: { team: true } } },
+    });
+
+    if (!fileTeam) {
+      return jsonError(404, "FILE_NOT_FOUND", "File not found");
+    }
+
+    if (
+      fileTeam.project.team.type === "personal" &&
+      fileTeam.project.team.ownerId !== userId
+    ) {
+      return jsonError(403, "FORBIDDEN", "Access denied to this file");
+    }
+
     const updateResult = await prisma.file.updateMany({
       where: {
         id,
