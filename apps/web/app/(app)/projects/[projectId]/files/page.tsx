@@ -1,18 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { FileText, Plus } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { FileCard } from "@/components/projects/file-card";
 import { FileRow } from "@/components/projects/file-row";
-import type { Project, ProjectFile } from "@/components/projects/project-types";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ApiError, formatRelative, getErrorMessage } from "@/lib/utils";
+import { formatRelative, getErrorMessage } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -25,123 +23,31 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { useSorting } from "@/hooks/use-sorting";
-
-function makeMockFiles(projectId: string): ProjectFile[] {
-  return [
-    {
-      id: "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
-      name: "GCO",
-      projectId,
-      createdAt: "2025-12-20T10:00:00Z",
-      updatedAt: "2025-12-20T14:30:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-    {
-      id: "f2b3c4d5-e6f7-8901-bcde-f12345678901",
-      name: "Screen Builder de Interfaces",
-      projectId,
-      createdAt: "2025-12-23T09:00:00Z",
-      updatedAt: "2025-12-25T16:45:00Z",
-      editedBy: { name: "Ana", avatarSrc: "/avatars/02.png" },
-    },
-    {
-      id: "f3c4d5e6-f7a8-9012-cdef-123456789012",
-      name: "@December 10, 2025 2:31 PM",
-      projectId,
-      createdAt: "2025-12-10T14:31:00Z",
-      updatedAt: "2025-12-13T11:20:00Z",
-      editedBy: { name: "Roberto", avatarSrc: "/avatars/03.png" },
-    },
-    {
-      id: "f4d5e6f7-a8b9-0123-def0-234567890123",
-      name: "Especificação Principal do Projeto",
-      projectId,
-      createdAt: "2025-12-22T08:00:00Z",
-      updatedAt: "2025-12-25T10:15:00Z",
-      editedBy: { name: "Ana", avatarSrc: "/avatars/02.png" },
-    },
-    {
-      id: "f5e6f7a8-b9c0-1234-ef01-345678901234",
-      name: "Configurações do Sistema",
-      projectId,
-      createdAt: "2025-09-09T10:00:00Z",
-      updatedAt: "2025-09-09T15:30:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-    {
-      id: "f6f7a8b9-c0d1-2345-f012-456789012345",
-      name: "Layout Principal",
-      projectId,
-      createdAt: "2025-09-08T14:00:00Z",
-      updatedAt: "2025-09-09T09:45:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-    {
-      id: "f7a8b9c0-d1e2-3456-0123-567890123456",
-      name: "Dashboard Overview",
-      projectId,
-      createdAt: "2025-09-07T11:00:00Z",
-      updatedAt: "2025-09-09T08:20:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-    {
-      id: "f8b9c0d1-e2f3-4567-1234-678901234567",
-      name: "Formulário de Cadastro",
-      projectId,
-      createdAt: "2025-09-06T16:00:00Z",
-      updatedAt: "2025-09-09T12:10:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-    {
-      id: "f9c0d1e2-f3a4-5678-2345-789012345678",
-      name: "Relatórios Financeiros",
-      projectId,
-      createdAt: "2025-09-05T09:00:00Z",
-      updatedAt: "2025-09-09T14:55:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-    {
-      id: "f0d1e2f3-a4b5-6789-3456-890123456789",
-      name: "Gestão de Usuários",
-      projectId,
-      createdAt: "2025-09-04T13:00:00Z",
-      updatedAt: "2025-09-09T16:40:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-    {
-      id: "f1e2f3a4-b5c6-7890-4567-901234567890",
-      name: "Painel de Controle",
-      projectId,
-      createdAt: "2025-09-03T10:30:00Z",
-      updatedAt: "2025-09-09T11:25:00Z",
-      editedBy: { name: "Carlos", avatarSrc: "/avatars/01.png" },
-    },
-  ];
-}
-
-async function fetchFiles(projectId: string): Promise<ProjectFile[]> {
-  const res = await fetch(`/api/projects/${projectId}/files`, {
-    method: "GET",
-  });
-
-  if (!res.ok) {
-    let body: ApiError | undefined;
-    try {
-      body = await res.json();
-    } catch {
-      /* noop */
-    }
-    throw body ?? new Error("Não foi possível carregar os arquivos do projeto");
-  }
-
-  const json = await res.json();
-  return json.items as ProjectFile[];
-}
+import { useProjectFiles } from "@/hooks/use-project-files";
+import { usePageContextStore } from "@/lib/stores/page-context-store";
+import { useTeamStore } from "@/lib/stores/team-store";
 
 export default function ProjectFilesPage() {
   const params = useParams<{ projectId: string }>();
-  const projectId = params?.projectId;
-  const queryClient = useQueryClient();
+  const projectId = params?.projectId ?? null;
+
+  const [view, setView] = useState<"cards" | "list">("cards");
+  const showCards = view === "cards";
+
+  const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
+    "lastModified"
+  );
+  const [order, setOrder] = useState<"newest" | "oldest">("newest");
+
+  const { activeTeamId, setActiveTeamId } = useTeamStore();
+  const { setProjectContext, clearProjectContext } = usePageContextStore();
+
+  const filesQuery = useProjectFiles(projectId);
+
+  const syncedProjectTeamIdRef = useRef<string | null>(null);
+
+  const projectTeamId = filesQuery.data?.project?.teamId ?? null;
+  const projectName = filesQuery.data?.project?.name ?? null;
 
   // Proteger contra parâmetros ausentes
   if (!projectId) {
@@ -159,32 +65,37 @@ export default function ProjectFilesPage() {
     );
   }
 
-  const [view, setView] = useState<"cards" | "list">("cards");
-  const showCards = view === "cards";
-
-  const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified"
-  );
-  const [order, setOrder] = useState<"newest" | "oldest">("newest");
-
-  const useMocks =
-    typeof window !== "undefined" &&
-    process.env.NEXT_PUBLIC_USE_MOCKS === "true";
-
-  const filesQuery = useQuery({
-    queryKey: ["project-files", projectId],
-    queryFn: async () => {
-      if (useMocks) return makeMockFiles(projectId);
-      try {
-        return await fetchFiles(projectId);
-      } catch {
-        return makeMockFiles(projectId);
-      }
-    },
-  });
-
   const filesLoading = filesQuery.isLoading || filesQuery.isPending;
-  const items = useMemo(() => filesQuery.data ?? [], [filesQuery.data]);
+
+  // Sempre que mudar de projeto, permite um novo autosync
+  useEffect(() => {
+    syncedProjectTeamIdRef.current = null;
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!projectTeamId) return;
+
+    if (syncedProjectTeamIdRef.current === projectTeamId) return;
+
+    if (!activeTeamId || projectTeamId !== activeTeamId) {
+      setActiveTeamId(projectTeamId, { source: "auto" });
+    }
+
+    syncedProjectTeamIdRef.current = projectTeamId;
+  }, [activeTeamId, projectTeamId, setActiveTeamId]);
+
+  useEffect(() => {
+    if (projectId && projectName) {
+      setProjectContext({ projectId, projectName });
+    }
+
+    return () => clearProjectContext();
+  }, [clearProjectContext, projectId, projectName, setProjectContext]);
+
+  const items = useMemo(
+    () => filesQuery.data?.items ?? [],
+    [filesQuery.data?.items]
+  );
 
   const sortedItems = useSorting({
     items,
@@ -196,11 +107,8 @@ export default function ProjectFilesPage() {
 
   const hasFiles = items.length > 0;
 
-  const projectLabel = useMemo(() => {
-    const projects = queryClient.getQueryData<Project[]>(["projects"]);
-    const projectName = projects?.find((project) => project.id === projectId)?.name;
-    return projectName ?? `Projeto ${shortId(projectId)}`;
-  }, [projectId, queryClient]);
+  const projectLabel =
+    projectName ?? `Projeto ${shortId(projectId ?? undefined)}`;
 
   let content;
 
@@ -213,6 +121,7 @@ export default function ProjectFilesPage() {
           "Não foi possível recuperar a lista de arquivos."
         )}
         onRetry={() => filesQuery.refetch()}
+        error={filesQuery.error}
       />
     );
   } else if (filesLoading) {
@@ -263,7 +172,9 @@ export default function ProjectFilesPage() {
         title="Arquivos do Projeto"
         description={
           <>
-            <span className="font-semibold text-foreground">{projectLabel}</span>{" "}
+            <span className="font-semibold text-foreground">
+              {projectLabel}
+            </span>{" "}
             · Visualize e gerencie os arquivos do projeto
           </>
         }

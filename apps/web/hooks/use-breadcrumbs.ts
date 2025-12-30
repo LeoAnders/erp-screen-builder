@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import type { Project, ProjectFile } from "@/components/projects/project-types";
+import { usePageContextStore } from "@/lib/stores/page-context-store";
+import { useTeamStore } from "@/lib/stores/team-store";
 import {
   matchBreadcrumbConfig,
   normalizePathname,
@@ -38,6 +40,9 @@ function useBreadcrumbLabels(
   params?: Record<string, string>
 ): BreadcrumbLabels | undefined {
   const queryClient = useQueryClient();
+  const { activeTeamId } = useTeamStore();
+  const { projectId: contextProjectId, projectName: contextProjectName } =
+    usePageContextStore();
 
   const projectId = params?.projectId;
   const fileId = params?.fileId;
@@ -46,7 +51,9 @@ function useBreadcrumbLabels(
     if (!projectId && !fileId) return undefined;
 
     const projectName = projectId
-      ? getProjectNameFromCache(queryClient, projectId)
+      ? contextProjectId === projectId && contextProjectName
+        ? contextProjectName
+        : getProjectNameFromCache(queryClient, projectId, activeTeamId)
       : undefined;
 
     const fileName =
@@ -55,14 +62,23 @@ function useBreadcrumbLabels(
         : undefined;
 
     return { projectName, fileName };
-  }, [fileId, projectId, queryClient]);
+  }, [
+    activeTeamId,
+    contextProjectId,
+    contextProjectName,
+    fileId,
+    projectId,
+    queryClient,
+  ]);
 }
 
 function getProjectNameFromCache(
   queryClient: ReturnType<typeof useQueryClient>,
-  projectId: string
+  projectId: string,
+  teamId: string | null
 ): string | undefined {
-  const projects = queryClient.getQueryData<Project[]>(["projects"]);
+  if (!teamId) return undefined;
+  const projects = queryClient.getQueryData<Project[]>(["projects", teamId]);
   const found = projects?.find((project) => project.id === projectId);
   return found?.name;
 }
@@ -79,4 +95,3 @@ function getFileNameFromCache(
   const found = files?.find((file) => file.id === fileId);
   return found?.name;
 }
-
