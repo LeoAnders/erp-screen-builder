@@ -20,9 +20,18 @@ export const ApiErrorSchema = z.object({
 export const TeamSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
+  visibility: z.enum(["private", "public"]),
+  type: z.enum(["personal", "normal"]),
+  ownerId: z.string().nullable(),
   isFavorite: z.boolean(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
+});
+
+export const ProjectFilePreviewSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  template: z.enum(["blank"]),
 });
 
 export const ProjectSchema = z.object({
@@ -32,6 +41,14 @@ export const ProjectSchema = z.object({
   teamId: z.string().uuid(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
+  fileCount: z.number().int(),
+  previews: z.array(ProjectFilePreviewSchema),
+});
+
+export const ProjectMetaSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  teamId: z.string().uuid(),
 });
 
 export const FileListItemSchema = z.object({
@@ -40,7 +57,17 @@ export const FileListItemSchema = z.object({
   template: z.enum(["blank"]),
   revision: z.number().int(),
   updatedAt: z.string().datetime({ offset: true }),
-  updatedBy: z.string().nullable(),
+  projectId: z.string().uuid(),
+  editedBy: z
+    .object({
+      name: z.string(),
+    })
+    .nullable(),
+});
+
+export const ListFilesResponseSchema = z.object({
+  project: ProjectMetaSchema,
+  items: z.array(FileListItemSchema),
 });
 
 export const FileDetailSchema = z.object({

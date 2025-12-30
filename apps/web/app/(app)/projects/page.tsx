@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Plus, FolderOpen } from "lucide-react";
 
 import {
@@ -18,105 +17,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { ProjectCard } from "@/components/projects/project-card";
 import { ProjectRow } from "@/components/projects/project-row";
-import {
-  Project,
-  ProjectFilePreview,
-} from "@/components/projects/project-types";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ApiError, formatRelative, getErrorMessage } from "@/lib/utils";
+import { formatRelative, getErrorMessage } from "@/lib/utils";
 import { useSorting } from "@/hooks/use-sorting";
 import { ListToolbar } from "@/components/ui/list-toolbar";
-
-function makeMockProjects(): Project[] {
-  const now = Date.now();
-  const iso = (ms: number) => new Date(ms).toISOString();
-
-  const mkPrev = (n: number) =>
-    Array.from({ length: n }).map((_, i) => ({
-      id: `f_${i + 1}`,
-      kind: i % 3 === 0 ? "image" : i % 3 === 1 ? "doc" : "frame",
-    })) as ProjectFilePreview[];
-
-  //return [];
-  return [
-    {
-      id: "proj_1",
-      name: "Team project",
-      teamId: "team_1",
-      createdAt: iso(now - 1000 * 60 * 60 * 24 * 20),
-      updatedAt: iso(now - 1000 * 60 * 25),
-      fileCount: 2,
-      previews: mkPrev(2),
-    },
-    {
-      id: "proj_2",
-      name: "Design system",
-      teamId: "team_1",
-      createdAt: iso(now - 1000 * 60 * 60 * 24 * 40),
-      updatedAt: iso(now - 1000 * 60 * 60 * 6),
-      fileCount: 7,
-      previews: mkPrev(4),
-    },
-    {
-      id: "proj_3",
-      name: "Mobile App",
-      teamId: "team_2",
-      createdAt: iso(now - 1000 * 60 * 60 * 24 * 10),
-      updatedAt: iso(now - 1000 * 60 * 60 * 24 * 2),
-      fileCount: 0,
-      previews: [],
-    },
-
-    {
-      id: "proj_4",
-      name: "Design system",
-      teamId: "team_1",
-      createdAt: iso(now - 1000 * 60 * 60 * 24 * 40),
-      updatedAt: iso(now - 1000 * 60 * 60 * 6),
-      fileCount: 10,
-      previews: mkPrev(4),
-    },
-    {
-      id: "proj_5",
-      name: "Design system",
-      teamId: "team_1",
-      createdAt: iso(now - 1000 * 60 * 60 * 24 * 40),
-      updatedAt: iso(now - 1000 * 60 * 60 * 6),
-      fileCount: 8,
-      previews: mkPrev(4),
-    },
-
-    {
-      id: "proj_6",
-      name: "Teste Projeto 6",
-      teamId: "team_1",
-      createdAt: iso(now - 1000 * 60 * 60 * 24 * 40),
-      updatedAt: iso(now - 1000 * 60 * 60 * 6),
-      fileCount: 7,
-      previews: mkPrev(4),
-    },
-  ];
-}
-
-async function fetchProjects(): Promise<Project[]> {
-  const res = await fetch("/api/projects", { method: "GET" });
-
-  if (!res.ok) {
-    let body: ApiError | undefined;
-    try {
-      body = await res.json();
-    } catch {
-      /* noop */
-    }
-    throw body ?? new Error("Não foi possível carregar os projetos");
-  }
-
-  const json = await res.json();
-  return json.items as Project[];
-}
+import { useProjects } from "@/hooks/use-projects";
+import { useTeams } from "@/hooks/use-teams";
+import { useTeamStore } from "@/lib/stores/team-store";
 
 export default function ProjectsPage() {
   const [view, setView] = useState<"cards" | "list">("cards");
@@ -127,23 +37,12 @@ export default function ProjectsPage() {
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
-  const useMocks =
-    typeof window !== "undefined" &&
-    process.env.NEXT_PUBLIC_USE_MOCKS === "true";
+  const teamsQuery = useTeams();
+  const { activeTeamId } = useTeamStore();
+  const projectsQuery = useProjects(activeTeamId);
 
-  const projectsQuery = useQuery({
-    queryKey: ["projects"],
-    queryFn: async () => {
-      if (useMocks) return makeMockProjects();
-      try {
-        return await fetchProjects();
-      } catch {
-        return makeMockProjects();
-      }
-    },
-  });
-
-  const projectsLoading = projectsQuery.isLoading || projectsQuery.isPending;
+  const projectsLoading =
+    teamsQuery.isLoading || projectsQuery.isLoading || projectsQuery.isPending;
   const items = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   // Ordena os projetos conforme critérios selecionados na UI.
   const sortedItems = useSorting({
@@ -157,7 +56,15 @@ export default function ProjectsPage() {
 
   let content: ReactNode;
 
-  if (projectsQuery.isError) {
+  if (!activeTeamId && !teamsQuery.isLoading) {
+    content = (
+      <EmptyState
+        icon={FolderOpen}
+        title="Selecione um time"
+        description="Escolha um time na sidebar para visualizar os projetos."
+      />
+    );
+  } else if (projectsQuery.isError) {
     content = (
       <ErrorState
         title="Erro ao carregar projetos"
@@ -166,6 +73,7 @@ export default function ProjectsPage() {
           "Não foi possível recuperar a lista de projetos."
         )}
         onRetry={() => projectsQuery.refetch()}
+        error={projectsQuery.error}
       />
     );
   } else if (projectsLoading) {
@@ -269,8 +177,7 @@ function ProjectTableSkeleton() {
         <TableRow>
           <TableHead>Projeto</TableHead>
           <TableHead className="w-[120px]">Arquivos</TableHead>
-          <TableHead className="w-[180px]">Atualizado</TableHead>
-          <TableHead className="w-[160px] text-left">Atualizado em</TableHead>
+          <TableHead className="w-[180px] text-left">Atualizado em</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -281,9 +188,6 @@ function ProjectTableSkeleton() {
             </TableCell>
             <TableCell className="p-4">
               <Skeleton className="h-4 w-10" />
-            </TableCell>
-            <TableCell className="p-4">
-              <Skeleton className="h-4 w-24" />
             </TableCell>
             <TableCell className="p-4">
               <div className="flex gap-2">

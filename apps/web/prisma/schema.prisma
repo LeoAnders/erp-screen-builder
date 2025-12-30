@@ -14,6 +14,8 @@ model User {
   emailVerified DateTime?
   image         String?
 
+  teams Team[] @relation("TeamOwner")
+
   accounts Account[]
   sessions Session[]
 }
@@ -60,13 +62,21 @@ model VerificationToken {
 
 /// Business models
 model Team {
-  id         String   @id @default(uuid()) @db.Uuid
-  name       String   @unique
-  isFavorite Boolean  @default(false) @map("is_favorite")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id         String         @id @default(uuid()) @db.Uuid
+  name       String         @unique
+  visibility TeamVisibility @default(public)
+  type       TeamType       @default(normal)
+  ownerId    String?        @map("owner_id")
+  isFavorite Boolean        @default(false) @map("is_favorite")
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  owner User? @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: SetNull)
 
   projects Project[]
+
+  @@index([ownerId])
+  @@index([visibility])
 }
 
 model Project {
@@ -81,10 +91,21 @@ model Project {
   files File[]
 
   @@index([teamId])
+  @@unique([teamId, name])
 }
 
 enum FileTemplate {
   blank
+}
+
+enum TeamVisibility {
+  private
+  public
+}
+
+enum TeamType {
+  personal
+  normal
 }
 
 model File {
@@ -102,4 +123,5 @@ model File {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+  @@unique([projectId, name])
 }

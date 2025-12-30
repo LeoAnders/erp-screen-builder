@@ -12,6 +12,7 @@ import {
   uuidSchema,
 } from "@/lib/api-helpers";
 import { getSchemaDefaults } from "@/lib/schemaDefaults";
+import { getSessionUserId } from "@/lib/session";
 
 const querySchema = z.object({
   projectId: uuidSchema,
@@ -24,7 +25,25 @@ export async function GET(req: Request) {
   const parsedQuery = parseQuery(req.url, querySchema);
   if ("error" in parsedQuery) return parsedQuery.error;
 
+  const userId = await getSessionUserId(sessionResult.session);
+  if (!userId) {
+    return jsonError(401, "UNAUTHORIZED", "User not found");
+  }
+
   try {
+    const project = await prisma.project.findUnique({
+      where: { id: parsedQuery.data.projectId },
+      include: { team: true },
+    });
+
+    if (!project) {
+      return jsonError(404, "PROJECT_NOT_FOUND", "Project not found");
+    }
+
+    if (project.team.type === "personal" && project.team.ownerId !== userId) {
+      return jsonError(403, "FORBIDDEN", "Access denied to this project");
+    }
+
     const items = await prisma.file.findMany({
       where: { projectId: parsedQuery.data.projectId },
       select: {
@@ -38,7 +57,24 @@ export async function GET(req: Request) {
       orderBy: { updatedAt: "desc" },
     });
 
-    return NextResponse.json({ items });
+    const payload = items.map((file) => ({
+      id: file.id,
+      name: file.name,
+      projectId: parsedQuery.data.projectId,
+      template: file.template,
+      revision: file.revision,
+      updatedAt: file.updatedAt,
+      editedBy: file.updatedBy ? { name: file.updatedBy } : null,
+    }));
+
+    return NextResponse.json({
+      project: {
+        id: project.id,
+        name: project.name,
+        teamId: project.teamId,
+      },
+      items: payload,
+    });
   } catch (error) {
     console.error("[GET /api/files] error", error);
     return jsonError(500, "INTERNAL_ERROR", "Unexpected error");
@@ -56,13 +92,26 @@ export async function POST(req: Request) {
   if ("error" in parsed) return parsed.error;
 
   try {
+    const userId = await getSessionUserId(sessionResult.session);
+    if (!userId) {
+      return jsonError(401, "UNAUTHORIZED", "User not found");
+    }
+
     const project = await prisma.project.findUnique({
       where: { id: parsed.data.projectId },
-      select: { id: true },
+      include: { team: true },
     });
 
     if (!project) {
       return jsonError(404, "PROJECT_NOT_FOUND", "Project not found");
+    }
+
+    if (project.team.type === "personal" && project.team.ownerId !== userId) {
+      return jsonError(
+        403,
+        "FORBIDDEN",
+        "Cannot write to another user's personal team"
+      );
     }
 
     const defaults = getSchemaDefaults(parsed.data.template);

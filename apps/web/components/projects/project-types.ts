@@ -8,6 +8,7 @@ export type ProjectFilePreview = {
 export type Project = {
   id: string;
   name: string;
+  description?: string | null;
   teamId: string;
   createdAt?: string;
   updatedAt?: string;
@@ -19,6 +20,8 @@ export type ProjectFile = {
   id: string;
   name: string;
   projectId: string;
+  template?: string;
+  revision?: number;
   kind?: "image" | "doc" | "frame";
   createdAt?: string;
   updatedAt?: string;

@@ -1,5 +1,7 @@
 export type SchemaTemplate = "blank";
 
+import type { Prisma } from "@prisma/client";
+
 export type ScreenLayout = {
   row: number;
   col: number;
@@ -17,7 +19,7 @@ export type ScreenNode = {
   type: "ScreenRoot";
   layout: ScreenLayout;
   props: ScreenProps;
-  children: unknown[];
+  children: Prisma.InputJsonValue[];
 };
 
 export type SchemaDefaults = {
