@@ -2,7 +2,7 @@ import type { Session } from "next-auth";
 import { prisma } from "@/lib/prisma";
 
 export async function getSessionUserId(
-  session: Session
+  session: Session,
 ): Promise<string | null> {
   const directId = (session.user as { id?: string } | undefined)?.id;
   if (directId) return directId;

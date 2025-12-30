@@ -33,7 +33,7 @@ export default function ProjectsPage() {
   const showCards = view === "cards";
 
   const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified"
+    "lastModified",
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
@@ -70,7 +70,7 @@ export default function ProjectsPage() {
         title="Erro ao carregar projetos"
         message={getErrorMessage(
           projectsQuery.error,
-          "Não foi possível recuperar a lista de projetos."
+          "Não foi possível recuperar a lista de projetos.",
         )}
         onRetry={() => projectsQuery.refetch()}
         error={projectsQuery.error}

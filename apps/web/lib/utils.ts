@@ -25,7 +25,7 @@ type RelativeTimeOptions = {
 
 export function formatRelative(
   dateString?: string,
-  options?: RelativeTimeOptions
+  options?: RelativeTimeOptions,
 ): string | undefined {
   if (!dateString) return undefined;
 

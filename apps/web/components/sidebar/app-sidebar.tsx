@@ -69,9 +69,7 @@ export function AppSidebar() {
           isLoading={projectsQuery.isLoading || projectsQuery.isPending}
           isError={projectsQuery.isError}
           emptyLabel={
-            activeTeamId
-              ? "Nenhum projeto recente"
-              : "Selecione um time"
+            activeTeamId ? "Nenhum projeto recente" : "Selecione um time"
           }
         />
       </SidebarContent>

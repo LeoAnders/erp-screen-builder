@@ -21,11 +21,11 @@ export function jsonError(
   status: number,
   code: ApiErrorCode,
   message: string,
-  details?: JsonErrorDetails
+  details?: JsonErrorDetails,
 ) {
   return NextResponse.json(
     { error: { code, message, ...(details ? { details } : {}) } },
-    { status }
+    { status },
   );
 }
 
@@ -76,7 +76,7 @@ type ParseResult<T> = { data: T } | { error: NextResponse };
 
 export async function parseBody<T>(
   req: Request,
-  schema: ZodSchema<T>
+  schema: ZodSchema<T>,
 ): Promise<ParseResult<T>> {
   try {
     const json = await req.json();
@@ -100,7 +100,7 @@ export async function parseBody<T>(
 
 export function parseQuery<T>(
   url: string,
-  schema: ZodSchema<T>
+  schema: ZodSchema<T>,
 ): ParseResult<T> {
   try {
     const searchParams = new URL(url).searchParams;

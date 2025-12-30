@@ -40,7 +40,7 @@ const looksLikeBearer = (v: unknown) =>
 
 export const safeStringify = (
   value: unknown,
-  opts?: { maxLength?: number }
+  opts?: { maxLength?: number },
 ): string => {
   const maxLength = opts?.maxLength ?? MAX_TECHNICAL_DETAILS_LENGTH;
 
@@ -55,7 +55,7 @@ export const safeStringify = (
         }
         return v;
       },
-      2
+      2,
     );
 
     if (str.length > maxLength) {
@@ -121,7 +121,7 @@ const getApiErrorCore = (value: unknown) => {
  * NÃO inclui details completos; ideal para prod/flag off.
  */
 export const sanitizeErrorForSummary = (
-  value: unknown
+  value: unknown,
 ): Record<string, unknown> | null => {
   if (!value) return null;
   if (typeof value === "string") return { message: value };
@@ -167,7 +167,7 @@ export const sanitizeErrorForSummary = (
  * Inclui details/cause completos (ainda redigidos).
  */
 export const sanitizeErrorForVerboseDisplay = (
-  value: unknown
+  value: unknown,
 ): Record<string, unknown> | null => {
   const base = sanitizeErrorForSummary(value) ?? {};
 

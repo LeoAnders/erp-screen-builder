@@ -38,9 +38,7 @@ const breadcrumbRegistry: BreadcrumbConfig[] = [
   {
     id: "dashboard",
     pattern: "/dashboard",
-    crumbs: [
-      { id: "home", label: "Início", href: "/dashboard" },
-    ],
+    crumbs: [{ id: "home", label: "Início", href: "/dashboard" }],
   },
   {
     id: "projects",
@@ -109,16 +107,16 @@ const breadcrumbRegistry: BreadcrumbConfig[] = [
 
 export function normalizePathname(pathname: string): string {
   if (!pathname) return "/";
-  const withLeadingSlash = pathname.startsWith("/")
-    ? pathname
-    : `/${pathname}`;
+  const withLeadingSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;
   if (withLeadingSlash !== "/" && withLeadingSlash.endsWith("/")) {
     return withLeadingSlash.slice(0, -1);
   }
   return withLeadingSlash;
 }
 
-export function matchBreadcrumbConfig(pathname: string): BreadcrumbMatch | null {
+export function matchBreadcrumbConfig(
+  pathname: string,
+): BreadcrumbMatch | null {
   const normalized = normalizePathname(pathname);
 
   for (const config of breadcrumbRegistry) {
@@ -133,7 +131,7 @@ export function matchBreadcrumbConfig(pathname: string): BreadcrumbMatch | null 
 
 export function resolveBreadcrumbs(
   pathname: string,
-  options?: { labels?: BreadcrumbLabels; match?: BreadcrumbMatch | null }
+  options?: { labels?: BreadcrumbLabels; match?: BreadcrumbMatch | null },
 ): ResolvedBreadcrumb[] {
   const normalized = normalizePathname(pathname);
   const match = options?.match ?? matchBreadcrumbConfig(normalized);
@@ -147,7 +145,7 @@ export function resolveBreadcrumbs(
 
 function resolveFromConfig(
   match: BreadcrumbMatch,
-  labels?: BreadcrumbLabels
+  labels?: BreadcrumbLabels,
 ): ResolvedBreadcrumb[] {
   const ctx: BreadcrumbContext = { params: match.params, labels };
 
@@ -172,7 +170,12 @@ function buildFallbackBreadcrumbs(pathname: string): ResolvedBreadcrumb[] {
   const segments = normalized.split("/").filter(Boolean);
 
   const crumbs: ResolvedBreadcrumb[] = [
-    { id: "home", label: "Início", href: "/dashboard", isCurrent: segments.length === 0 },
+    {
+      id: "home",
+      label: "Início",
+      href: "/dashboard",
+      isCurrent: segments.length === 0,
+    },
   ];
 
   segments.forEach((segment, index) => {
@@ -229,4 +232,3 @@ function shortId(value: string): string {
   if (value.length > 12) return value.slice(0, 8);
   return value;
 }
-

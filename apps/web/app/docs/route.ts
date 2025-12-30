@@ -24,5 +24,5 @@ export const GET =
               message: "Docs are available only in development",
             },
           },
-          { status: 404 }
+          { status: 404 },
         );

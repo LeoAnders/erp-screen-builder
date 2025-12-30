@@ -31,7 +31,7 @@ const jsonObjectSchema = z
   .refine(
     (value): value is Record<string, unknown> =>
       !!value && typeof value === "object" && !Array.isArray(value),
-    { message: "schema_json must be an object" }
+    { message: "schema_json must be an object" },
   );
 
 export const updateFileSchema = z.object({

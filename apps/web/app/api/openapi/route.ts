@@ -12,7 +12,7 @@ export async function GET() {
           message: "API docs are available only in development",
         },
       },
-      { status: 404 }
+      { status: 404 },
     );
   }
 

@@ -27,7 +27,7 @@ const FileDetail = registry.register("FileDetail", FileDetailSchema);
 const FileCreated = registry.register("FileCreated", FileCreatedSchema);
 const FileUpdateResponse = registry.register(
   "FileUpdateResponse",
-  FileUpdateResponseSchema
+  FileUpdateResponseSchema,
 );
 
 const ProjectMeta = registry.register(
@@ -36,17 +36,17 @@ const ProjectMeta = registry.register(
     id: z.string().uuid(),
     name: z.string(),
     teamId: z.string().uuid(),
-  })
+  }),
 );
 
 const ListTeamsResponse = registry.register(
   "ListTeamsResponse",
-  z.object({ items: z.array(Team) })
+  z.object({ items: z.array(Team) }),
 );
 
 const ListProjectsResponse = registry.register(
   "ListProjectsResponse",
-  z.object({ items: z.array(Project) })
+  z.object({ items: z.array(Project) }),
 );
 
 const ListFilesResponse = registry.register(
@@ -54,12 +54,12 @@ const ListFilesResponse = registry.register(
   z.object({
     project: ProjectMeta,
     items: z.array(FileListItem),
-  })
+  }),
 );
 
 const FileCreateResponse = registry.register(
   "FileCreateResponse",
-  z.object({ file: FileCreated })
+  z.object({ file: FileCreated }),
 );
 
 registry.registerPath({

@@ -12,4 +12,3 @@ export function PageContainer({ className, children }: PageContainerProps) {
     <div className={cn("mx-auto w-full max-w-6xl", className)}>{children}</div>
   );
 }
-
