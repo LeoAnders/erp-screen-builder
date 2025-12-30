@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ApiError } from "@/lib/utils";
 import type { ProjectListItemDTO } from "@/lib/dtos";
-import type { Project, ProjectFilePreview } from "@/components/projects/project-types";
+import type {
+  Project,
+  ProjectFilePreview,
+} from "@/components/projects/project-types";
 import { templateToKind } from "@/lib/project-kinds";
 
 async function fetchProjects(teamId: string): Promise<ProjectListItemDTO[]> {
@@ -21,7 +24,9 @@ async function fetchProjects(teamId: string): Promise<ProjectListItemDTO[]> {
   return json.items as ProjectListItemDTO[];
 }
 
-function mapPreview(preview: ProjectListItemDTO["previews"][number]): ProjectFilePreview {
+function mapPreview(
+  preview: ProjectListItemDTO["previews"][number],
+): ProjectFilePreview {
   return {
     id: preview.id,
     kind: templateToKind(preview.template),

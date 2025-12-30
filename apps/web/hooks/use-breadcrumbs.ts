@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
@@ -16,28 +16,30 @@ import {
   type ResolvedBreadcrumb,
 } from "@/lib/navigation/breadcrumbs-registry";
 
-export function useBreadcrumbs(pathnameOverride?: string): ResolvedBreadcrumb[] {
+export function useBreadcrumbs(
+  pathnameOverride?: string,
+): ResolvedBreadcrumb[] {
   const pathname = usePathname();
   const normalized = useMemo(
     () => normalizePathname(pathnameOverride ?? pathname ?? "/"),
-    [pathname, pathnameOverride]
+    [pathname, pathnameOverride],
   );
 
   const match = useMemo<BreadcrumbMatch | null>(
     () => matchBreadcrumbConfig(normalized),
-    [normalized]
+    [normalized],
   );
 
   const labels = useBreadcrumbLabels(match?.params);
 
   return useMemo(
     () => resolveBreadcrumbs(normalized, { labels, match }),
-    [labels, match, normalized]
+    [labels, match, normalized],
   );
 }
 
 function useBreadcrumbLabels(
-  params?: Record<string, string>
+  params?: Record<string, string>,
 ): BreadcrumbLabels | undefined {
   const queryClient = useQueryClient();
   const { activeTeamId } = useTeamStore();
@@ -75,7 +77,7 @@ function useBreadcrumbLabels(
 function getProjectNameFromCache(
   queryClient: ReturnType<typeof useQueryClient>,
   projectId: string,
-  teamId: string | null
+  teamId: string | null,
 ): string | undefined {
   if (!teamId) return undefined;
   const projects = queryClient.getQueryData<Project[]>(["projects", teamId]);
@@ -86,7 +88,7 @@ function getProjectNameFromCache(
 function getFileNameFromCache(
   queryClient: ReturnType<typeof useQueryClient>,
   projectId: string,
-  fileId: string
+  fileId: string,
 ): string | undefined {
   const files = queryClient.getQueryData<ProjectFile[]>([
     "project-files",

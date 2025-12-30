@@ -34,4 +34,3 @@ export function useSorting<T>({
     return order === "oldest" ? sorted.reverse() : sorted;
   }, [getDate, getName, items, order, sortBy]);
 }
-

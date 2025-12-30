@@ -103,7 +103,7 @@ export function ErrorState({
                 className={cn(
                   "inline-flex w-full items-center justify-center gap-2 text-xs text-muted-foreground cursor-pointer",
                   "hover:underline underline-offset-4 hover:text-muted-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 )}
               >
                 <Bug className="size-3" />
@@ -113,7 +113,7 @@ export function ErrorState({
                 <ChevronDown
                   className={cn(
                     "size-3 transition-transform duration-200",
-                    detailsOpen && "rotate-180"
+                    detailsOpen && "rotate-180",
                   )}
                 />
               </button>

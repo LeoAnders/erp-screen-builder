@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import WheelGesturesPlugin from "embla-carousel-wheel-gestures";
 
@@ -18,6 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
@@ -122,7 +123,7 @@ function CarouselArrows({
   canPrev,
   canNext,
 }: {
-  api: any;
+  api: CarouselApi | null;
   canPrev: boolean;
   canNext: boolean;
 }) {
@@ -158,7 +159,7 @@ function CarouselArrows({
 }
 
 export default function Page() {
-  const [api, setApi] = React.useState<any>(null);
+  const [api, setApi] = React.useState<CarouselApi | null>(null);
   const [canPrev, setCanPrev] = React.useState(false);
   const [canNext, setCanNext] = React.useState(false);
 

@@ -12,7 +12,7 @@ type ProjectFilesResponse = {
 };
 
 async function fetchProjectFiles(
-  projectId: string
+  projectId: string,
 ): Promise<ProjectFilesResponse> {
   const res = await fetch(`/api/files?projectId=${projectId}`, {
     method: "GET",

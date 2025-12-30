@@ -46,4 +46,3 @@ export function getSchemaDefaults(template: SchemaTemplate): SchemaDefaults {
 
   throw new Error(`Unsupported template: ${template}`);
 }
-

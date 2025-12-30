@@ -65,7 +65,7 @@ async function main() {
             now,
             teamIndex,
             projectIndex,
-            fileIndex
+            fileIndex,
           );
 
           return {
@@ -93,7 +93,7 @@ async function main() {
 function buildProjectCreatedAt(
   now: Date,
   teamIndex: number,
-  projectIndex: number
+  projectIndex: number,
 ) {
   const daysOffset = teamIndex * 4 + projectIndex + 2;
   return new Date(now.getTime() - daysOffset * 86400000);
@@ -102,7 +102,7 @@ function buildProjectCreatedAt(
 function buildProjectUpdatedAt(
   now: Date,
   teamIndex: number,
-  projectIndex: number
+  projectIndex: number,
 ) {
   const hoursOffset = teamIndex * 12 + projectIndex * 6 + 3;
   return new Date(now.getTime() - hoursOffset * 3600000);
@@ -112,7 +112,7 @@ function buildFileUpdatedAt(
   now: Date,
   teamIndex: number,
   projectIndex: number,
-  fileIndex: number
+  fileIndex: number,
 ) {
   const hoursOffset = teamIndex * 18 + projectIndex * 6 + fileIndex + 1;
   return new Date(now.getTime() - hoursOffset * 3600000);

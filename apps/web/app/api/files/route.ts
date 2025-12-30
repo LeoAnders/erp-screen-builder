@@ -110,7 +110,7 @@ export async function POST(req: Request) {
       return jsonError(
         403,
         "FORBIDDEN",
-        "Cannot write to another user's personal team"
+        "Cannot write to another user's personal team",
       );
     }
 

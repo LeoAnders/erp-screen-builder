@@ -11,7 +11,7 @@ type TeamStore = {
 
   setActiveTeamId: (
     teamId: string | null,
-    opts?: { source?: TeamChangeSource }
+    opts?: { source?: TeamChangeSource },
   ) => void;
 };
 
@@ -29,6 +29,6 @@ export const useTeamStore = create<TeamStore>()(
           lastChangedAt: Date.now(),
         }),
     }),
-    { name: "erp-screen-builder-team-store" }
-  )
+    { name: "erp-screen-builder-team-store" },
+  ),
 );

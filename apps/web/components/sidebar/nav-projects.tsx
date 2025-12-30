@@ -66,7 +66,10 @@ export function NavProjects({
             ))
           ) : isError ? (
             <SidebarMenuItem>
-              <SidebarMenuButton disabled className="text-sidebar-foreground/70">
+              <SidebarMenuButton
+                disabled
+                className="text-sidebar-foreground/70"
+              >
                 <Folder className="h-4 w-4" />
                 <span>Erro ao carregar projetos</span>
               </SidebarMenuButton>
@@ -84,7 +87,10 @@ export function NavProjects({
             ))
           ) : (
             <SidebarMenuItem>
-              <SidebarMenuButton disabled className="text-sidebar-foreground/70">
+              <SidebarMenuButton
+                disabled
+                className="text-sidebar-foreground/70"
+              >
                 <Folder className="h-4 w-4" />
                 <span>{emptyLabel}</span>
               </SidebarMenuButton>
