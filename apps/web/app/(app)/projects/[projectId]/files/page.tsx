@@ -35,7 +35,7 @@ export default function ProjectFilesPage() {
   const showCards = view === "cards";
 
   const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified",
+    "lastModified"
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
@@ -78,7 +78,7 @@ export default function ProjectFilesPage() {
 
   const items = useMemo(
     () => filesQuery.data?.items ?? [],
-    [filesQuery.data?.items],
+    [filesQuery.data?.items]
   );
 
   const sortedItems = useSorting({
@@ -118,7 +118,7 @@ export default function ProjectFilesPage() {
         title="Erro ao carregar arquivos"
         message={getErrorMessage(
           filesQuery.error,
-          "Não foi possível recuperar a lista de arquivos.",
+          "Não foi possível recuperar a lista de arquivos."
         )}
         onRetry={() => filesQuery.refetch()}
         error={filesQuery.error}
@@ -136,7 +136,7 @@ export default function ProjectFilesPage() {
     );
   } else if (showCards) {
     content = (
-      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
+      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
         {sortedItems.map((file) => (
           <FileCard key={file.id} file={file} />
         ))}
@@ -198,7 +198,7 @@ export default function ProjectFilesPage() {
 
 function FileCardsSkeleton() {
   return (
-    <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
+    <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
       {Array.from({ length: 6 }).map((_, idx) => (
         <Card key={idx} className="rounded-2xl p-3">
           <div className="grid aspect-16/10 grid-cols-2 gap-3 rounded-xl p-2">

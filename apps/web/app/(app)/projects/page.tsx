@@ -33,7 +33,7 @@ export default function ProjectsPage() {
   const showCards = view === "cards";
 
   const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified",
+    "lastModified"
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
@@ -70,7 +70,7 @@ export default function ProjectsPage() {
         title="Erro ao carregar projetos"
         message={getErrorMessage(
           projectsQuery.error,
-          "Não foi possível recuperar a lista de projetos.",
+          "Não foi possível recuperar a lista de projetos."
         )}
         onRetry={() => projectsQuery.refetch()}
         error={projectsQuery.error}
@@ -88,7 +88,7 @@ export default function ProjectsPage() {
     );
   } else if (showCards) {
     content = (
-      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
+      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
         {sortedItems.map((project) => (
           <ProjectCard
             key={project.id}
@@ -151,7 +151,7 @@ export default function ProjectsPage() {
 
 function ProjectCardsSkeleton() {
   return (
-    <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
+    <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
       {Array.from({ length: 6 }).map((_, idx) => (
         <Card key={idx} className="rounded-2xl p-3">
           <div className="grid aspect-16/10 grid-cols-2 gap-3 rounded-xl p-2">
