@@ -132,15 +132,20 @@ erp-screen-builder/
 ├── apps/
 │   └── web/
 │       ├── app/                 # Rotas e layouts (App Router)
-│       │   ├── (app)/           # Rotas autenticadas
-│       │   │   ├── dashboard/   # Pagina inicial
-│       │   │   └── projects/    # Gestao de projetos e arquivos
+│       │   ├── not-found.tsx    # 404 global (full screen)
+│       │   ├── (public)/        # Rotas publicas (sem auth)
+│       │   │   └── login/       # Pagina de login
+│       │   ├── (app)/           # Rotas autenticadas (providers + auth)
+│       │   │   ├── layout.tsx   # Auth + Providers (sem AppShell)
+│       │   │   ├── not-found.tsx# 404 autenticado (full screen, sem Sidebar/Header)
+│       │   │   └── (shell)/     # AppShell (Sidebar/Header)
+│       │   │       ├── dashboard/  # Pagina inicial
+│       │   │       └── projects/   # Gestao de projetos e arquivos
 │       │   ├── api/             # Route Handlers
 │       │   │   ├── auth/        # NextAuth endpoints
 │       │   │   ├── teams/       # API de times
 │       │   │   ├── projects/    # API de projetos
 │       │   │   └── files/       # API de arquivos
-│       │   └── login/           # Pagina de login
 │       ├── components/          # Componentes React
 │       │   ├── ui/              # Componentes base (Shadcn)
 │       │   ├── layout/          # Header, containers
@@ -161,6 +166,11 @@ erp-screen-builder/
 └── docker/
     └── docker-compose.yml
 ```
+
+### Not Found (404) no App Router
+
+- O projeto usa o mecanismo oficial do Next.js App Router (`notFound()`), garantindo **status 404 real**.
+- Para rotas autenticadas, o `not-found.tsx` em `apps/web/app/(app)/not-found.tsx` renderiza **full screen** sem Sidebar/Header, pois o AppShell fica em `apps/web/app/(app)/(shell)/layout.tsx`.
 
 ---
 
