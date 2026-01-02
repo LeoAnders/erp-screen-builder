@@ -19,7 +19,7 @@ export function NotFoundScreen({
     <div
       className={cn(
         "min-h-screen w-full flex items-center justify-center bg-background px-6",
-        className
+        className,
       )}
     >
       <div className="max-w-lg text-center">
