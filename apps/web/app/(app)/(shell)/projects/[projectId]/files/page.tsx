@@ -35,7 +35,7 @@ export default function ProjectFilesPage() {
   const showCards = view === "cards";
 
   const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified"
+    "lastModified",
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
@@ -78,7 +78,7 @@ export default function ProjectFilesPage() {
 
   const items = useMemo(
     () => filesQuery.data?.items ?? [],
-    [filesQuery.data?.items]
+    [filesQuery.data?.items],
   );
 
   const sortedItems = useSorting({
@@ -96,9 +96,7 @@ export default function ProjectFilesPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold">Arquivos do Projeto</h1>
-            <p className="text-muted-foreground text-sm">
-              Projeto não encontrado.
-            </p>
+            <p className="text-muted-foreground text-sm">Projeto não encontrado.</p>
           </div>
         </div>
       </PageContainer>
@@ -118,7 +116,7 @@ export default function ProjectFilesPage() {
         title="Erro ao carregar arquivos"
         message={getErrorMessage(
           filesQuery.error,
-          "Não foi possível recuperar a lista de arquivos."
+          "Não foi possível recuperar a lista de arquivos.",
         )}
         onRetry={() => filesQuery.refetch()}
         error={filesQuery.error}
@@ -172,9 +170,7 @@ export default function ProjectFilesPage() {
         title="Arquivos do Projeto"
         description={
           <>
-            <span className="font-semibold text-foreground">
-              {projectLabel}
-            </span>{" "}
+            <span className="font-semibold text-foreground">{projectLabel}</span>{" "}
             · Visualize e gerencie os arquivos do projeto
           </>
         }
@@ -251,3 +247,4 @@ function shortId(value: string | undefined): string {
   if (value.length > 12) return value.slice(0, 8);
   return value;
 }
+
