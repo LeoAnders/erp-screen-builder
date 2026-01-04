@@ -5,6 +5,7 @@ import { FileText } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { formatRelative } from "@/lib/utils";
 import type { ProjectFile } from "./project-types";
@@ -25,7 +26,7 @@ export function FileCard({ file, href, className }: FileCardProps) {
         "group relative overflow-hidden rounded-2xl bg-card/40 p-3 transition",
         "hover:bg-card/70 hover:shadow-sm",
         "h-[180px]",
-        className,
+        className
       )}
     >
       <Link
@@ -69,6 +70,33 @@ export function FileCard({ file, href, className }: FileCardProps) {
           </div>
         </div>
       </Link>
+    </Card>
+  );
+}
+
+export function FileCardSkeleton() {
+  return (
+    <Card className="group relative h-[180px] overflow-hidden rounded-2xl bg-card/40 p-3">
+      <div className="flex h-full flex-col px-1 pt-1">
+        {/* ícone (apenas contorno) */}
+        <div className="flex items-start">
+          <Skeleton className="size-9 rounded-lg" />
+        </div>
+
+        {/* título (2 linhas, bem minimal) */}
+        <div className="mt-3 space-y-2">
+          <Skeleton className="h-4 w-4/5" />
+          <Skeleton className="h-4 w-2/5" />
+        </div>
+
+        {/* footer */}
+        <div className="mt-auto pt-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }

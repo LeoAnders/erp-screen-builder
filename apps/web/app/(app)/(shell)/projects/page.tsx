@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { Plus, FolderOpen } from "lucide-react";
 
@@ -12,11 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
 
-import { Card } from "@/components/ui/card";
-import { ProjectCard } from "@/components/projects/project-card";
-import { ProjectRow } from "@/components/projects/project-row";
+import {
+  ProjectCard,
+  ProjectCardSkeleton,
+} from "@/components/projects/project-card";
+import {
+  ProjectRow,
+  ProjectTableRowSkeleton,
+} from "@/components/projects/project-row";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { ErrorState } from "@/components/ui/error-state";
@@ -27,13 +31,28 @@ import { ListToolbar } from "@/components/ui/list-toolbar";
 import { useProjects } from "@/hooks/use-projects";
 import { useTeams } from "@/hooks/use-teams";
 import { useTeamStore } from "@/lib/stores/team-store";
+import { useDeferredLoading } from "@/hooks/use-deferred-loading";
+import { useViewPreferenceStore } from "@/lib/stores/view-preference-store";
 
 export default function ProjectsPage() {
-  const [view, setView] = useState<"cards" | "list">("cards");
+  const { projectsView, setProjectsView } = useViewPreferenceStore();
+  const [view, setView] = useState<"cards" | "list">(projectsView);
+
+  // Sincroniza o estado local com a store quando ela muda
+  useEffect(() => {
+    setView(projectsView);
+  }, [projectsView]);
+
+  // Atualiza a store quando o usuário muda a visualização
+  const handleViewChange = (newView: "cards" | "list") => {
+    setView(newView);
+    setProjectsView(newView);
+  };
+
   const showCards = view === "cards";
 
   const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified",
+    "lastModified"
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
@@ -41,8 +60,6 @@ export default function ProjectsPage() {
   const { activeTeamId } = useTeamStore();
   const projectsQuery = useProjects(activeTeamId);
 
-  const projectsLoading =
-    teamsQuery.isLoading || projectsQuery.isLoading || projectsQuery.isPending;
   const items = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   // Ordena os projetos conforme critérios selecionados na UI.
   const sortedItems = useSorting({
@@ -52,11 +69,18 @@ export default function ProjectsPage() {
     getDate: (p) => p.updatedAt ?? p.createdAt,
     getName: (p) => p.name,
   });
-  const hasProjects = items.length > 0;
+
+  const hasProjectsData =
+    projectsQuery.data != null || projectsQuery.isPlaceholderData;
+  const showSkeleton = useDeferredLoading(
+    Boolean(activeTeamId) && projectsQuery.isPending && !hasProjectsData,
+    180
+  );
+  const isEmpty = hasProjectsData && items.length === 0;
 
   let content: ReactNode;
 
-  if (!activeTeamId && !teamsQuery.isLoading) {
+  if (!activeTeamId && teamsQuery.data != null) {
     content = (
       <EmptyState
         icon={FolderOpen}
@@ -70,15 +94,13 @@ export default function ProjectsPage() {
         title="Erro ao carregar projetos"
         message={getErrorMessage(
           projectsQuery.error,
-          "Não foi possível recuperar a lista de projetos.",
+          "Não foi possível recuperar a lista de projetos."
         )}
         onRetry={() => projectsQuery.refetch()}
         error={projectsQuery.error}
       />
     );
-  } else if (projectsLoading) {
-    content = showCards ? <ProjectCardsSkeleton /> : <ProjectTableSkeleton />;
-  } else if (!hasProjects) {
+  } else if (isEmpty) {
     content = (
       <EmptyState
         icon={FolderOpen}
@@ -89,15 +111,23 @@ export default function ProjectsPage() {
   } else if (showCards) {
     content = (
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-        {sortedItems.map((project) => (
-          <ProjectCard
-            key={project.id}
-            id={project.id}
-            name={project.name}
-            fileCount={project.fileCount}
-            previews={project.previews}
-          />
-        ))}
+        {showSkeleton && !hasProjectsData
+          ? Array.from({ length: 6 }).map((_, idx) => (
+              <ProjectCardSkeleton key={idx} />
+            ))
+          : sortedItems.map((project) => (
+              <div
+                key={project.id}
+                className="animate-in fade-in-0 zoom-in-98 duration-120 motion-reduce:animate-none"
+              >
+                <ProjectCard
+                  id={project.id}
+                  name={project.name}
+                  fileCount={project.fileCount}
+                  previews={project.previews}
+                />
+              </div>
+            ))}
       </div>
     );
   } else {
@@ -111,16 +141,20 @@ export default function ProjectsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedItems.map((project) => (
-            <ProjectRow
-              key={project.id}
-              id={project.id}
-              name={project.name}
-              fileCount={project.fileCount}
-              previews={project.previews}
-              updatedAt={formatRelative(project.updatedAt)}
-            />
-          ))}
+          {showSkeleton && !hasProjectsData
+            ? Array.from({ length: 5 }).map((_, idx) => (
+                <ProjectTableRowSkeleton key={idx} />
+              ))
+            : sortedItems.map((project) => (
+                <ProjectRow
+                  key={project.id}
+                  id={project.id}
+                  name={project.name}
+                  fileCount={project.fileCount}
+                  previews={project.previews}
+                  updatedAt={formatRelative(project.updatedAt)}
+                />
+              ))}
         </TableBody>
       </Table>
     );
@@ -141,64 +175,10 @@ export default function ProjectsPage() {
         view={view}
         onSortByChange={(v) => setSortBy(v)}
         onOrderChange={(v) => setOrder(v)}
-        onViewChange={(v) => setView(v)}
+        onViewChange={handleViewChange}
       />
 
       <div className="flex-1 flex flex-col">{content}</div>
     </PageContainer>
-  );
-}
-
-function ProjectCardsSkeleton() {
-  return (
-    <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-      {Array.from({ length: 6 }).map((_, idx) => (
-        <Card key={idx} className="rounded-2xl p-3">
-          <div className="grid aspect-16/10 grid-cols-2 gap-3 rounded-xl p-2">
-            <Skeleton className="rounded-lg" />
-            <Skeleton className="rounded-lg" />
-            <Skeleton className="rounded-lg" />
-            <Skeleton className="rounded-lg" />
-          </div>
-          <div className="px-1 pb-1 pt-3 space-y-2">
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-3 w-20" />
-          </div>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-function ProjectTableSkeleton() {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Projeto</TableHead>
-          <TableHead className="w-[120px]">Arquivos</TableHead>
-          <TableHead className="w-[180px] text-left">Atualizado em</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Array.from({ length: 5 }).map((_, idx) => (
-          <TableRow key={idx} className="border-b">
-            <TableCell className="p-4">
-              <Skeleton className="h-4 w-56" />
-            </TableCell>
-            <TableCell className="p-4">
-              <Skeleton className="h-4 w-10" />
-            </TableCell>
-            <TableCell className="p-4">
-              <div className="flex gap-2">
-                {Array.from({ length: 4 }).map((_, previewIdx) => (
-                  <Skeleton key={previewIdx} className="h-10 w-10 rounded-lg" />
-                ))}
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 }

@@ -1,10 +1,14 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { KindIcon } from "@/components/projects/kind-icon";
 import { ProjectFilePreview } from "@/components/projects/project-types";
+import { projectFilesQueryOptions } from "@/hooks/use-project-files";
 
 export type ProjectRowProps = {
   id: string;
@@ -23,14 +27,23 @@ export function ProjectRow({
   updatedAt,
   href = `/projects/${id}/files`,
 }: ProjectRowProps) {
+  const queryClient = useQueryClient();
+  const prefetchFiles = useCallback(() => {
+    void queryClient.prefetchQuery(projectFilesQueryOptions(id));
+  }, [id, queryClient]);
+
   return (
-    <TableRow className="border-b border-border/60 hover:bg-muted/20">
+    <TableRow
+      className="border-b border-border/60 hover:bg-muted/20"
+      onMouseEnter={prefetchFiles}
+    >
       <TableCell className="min-w-[320px]">
         <Link
           href={href}
+          onFocus={prefetchFiles}
           className={cn(
             "group flex items-center gap-4 rounded-md px-1 py-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           )}
         >
           <ProjectMiniGrid previews={previews} />
@@ -63,7 +76,7 @@ function ProjectMiniGrid({ previews }: { previews: ProjectFilePreview[] }) {
       className={cn(
         "relative shrink-0",
         "h-12 w-20 overflow-hidden rounded-sm",
-        "bg-muted/50",
+        "bg-muted/50"
       )}
       aria-label="Miniaturas do projeto"
     >
@@ -100,5 +113,31 @@ function MiniPreviewTile({ preview }: { preview: ProjectFilePreview }) {
 
       <div className="pointer-events-none absolute inset-0" />
     </div>
+  );
+}
+
+export function ProjectTableRowSkeleton() {
+  return (
+    <TableRow className="border-b border-border/60">
+      <TableCell className="min-w-[320px] p-4">
+        <div className="flex items-center gap-4 px-1 py-2">
+          {/* mini-grid  */}
+          <Skeleton className="h-12 w-20 rounded-sm" />
+
+          {/* nome */}
+          <Skeleton className="h-4 w-48" />
+        </div>
+      </TableCell>
+
+      {/* Arquivos */}
+      <TableCell className="p-4">
+        <Skeleton className="h-4 w-24" />
+      </TableCell>
+
+      {/* Atualizado em */}
+      <TableCell className="p-4">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+    </TableRow>
   );
 }
