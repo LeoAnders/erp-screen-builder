@@ -1,12 +1,16 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
 import { FolderOpen, Plus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { KindIcon } from "@/components/projects/kind-icon";
 import { ProjectFilePreview } from "@/components/projects/project-types";
+import { projectFilesQueryOptions } from "@/hooks/use-project-files";
 
 export type ProjectCardProps = {
   id: string;
@@ -51,7 +55,7 @@ function EmptySlot({ onClick }: { onClick?: () => void }) {
         "border border-dashed border-gray-100/20",
         "bg-muted/10 text-muted-foreground",
         "transition-colors hover:bg-muted/20 hover:border-gray-100/35",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       )}
       aria-label="Criar novo arquivo"
     >
@@ -73,6 +77,11 @@ export function ProjectCard({
   className,
   onCreateFile,
 }: ProjectCardProps) {
+  const queryClient = useQueryClient();
+  const prefetchFiles = useCallback(() => {
+    void queryClient.prefetchQuery(projectFilesQueryOptions(id));
+  }, [id, queryClient]);
+
   // Mantém 4 células para preservar o layout mesmo com menos previews.
   const slots = Array.from({ length: 4 }).map((_, i) => previews[i]);
 
@@ -81,8 +90,10 @@ export function ProjectCard({
       className={cn(
         "group relative overflow-hidden rounded-2xl bg-card/40 p-3 transition",
         "hover:bg-card/70 hover:shadow-sm",
-        className,
+        className
       )}
+      onMouseEnter={prefetchFiles}
+      onFocusCapture={prefetchFiles}
     >
       {/* Link do projeto (mantém click no card / título) */}
       <Link
@@ -113,8 +124,31 @@ export function ProjectCard({
               key={`empty-${idx}`}
               onClick={onCreateFile ? () => onCreateFile(id) : undefined}
             />
-          ),
+          )
         )}
+      </div>
+    </Card>
+  );
+}
+export function ProjectCardSkeleton() {
+  return (
+    <Card className="rounded-2xl bg-card/40 p-3">
+      {/* header */}
+      <div className="mb-3 flex items-center gap-3 px-1 pt-1">
+        <Skeleton className="size-9 rounded-lg" />
+
+        <div className="min-w-0 flex-1 space-y-2">
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-3 w-16" />
+        </div>
+      </div>
+
+      {/* grid 2x2 */}
+      <div className="grid aspect-16/10 grid-cols-2 grid-rows-2 gap-3 rounded-xl p-2">
+        <Skeleton className="rounded-lg" />
+        <Skeleton className="rounded-lg" />
+        <Skeleton className="rounded-lg" />
+        <Skeleton className="rounded-lg" />
       </div>
     </Card>
   );

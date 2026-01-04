@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
+import Link from "next/link";
 
 import {
   Breadcrumb,
@@ -11,6 +12,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs";
 import type { ResolvedBreadcrumb } from "@/lib/navigation/breadcrumbs-registry";
 
@@ -31,42 +34,49 @@ export function HeaderBreadcrumbs() {
 
   const displayCrumbs = collapseIfNeeded(breadcrumbs);
 
-  if (!displayCrumbs.length) return null;
-
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        {displayCrumbs.map((item, index) => {
-          const isLast = index === displayCrumbs.length - 1;
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+      <SidebarTrigger className="-ml-1" />
+      <Separator orientation="vertical" className="mr-2 h-4" />
 
-          if (item.type === "ellipsis") {
-            return (
-              <Fragment key={item.id}>
-                <BreadcrumbItem>
-                  <BreadcrumbEllipsis />
-                </BreadcrumbItem>
-                {!isLast && <BreadcrumbSeparator />}
-              </Fragment>
-            );
-          }
+      {displayCrumbs.length > 0 && (
+        <Breadcrumb>
+          <BreadcrumbList>
+            {displayCrumbs.map((item, index) => {
+              const isLast = index === displayCrumbs.length - 1;
 
-          const isLink = !!item.href && !item.isCurrent;
+              if (item.type === "ellipsis") {
+                return (
+                  <Fragment key={item.id}>
+                    <BreadcrumbItem>
+                      <BreadcrumbEllipsis />
+                    </BreadcrumbItem>
+                    {!isLast && <BreadcrumbSeparator />}
+                  </Fragment>
+                );
+              }
 
-          return (
-            <Fragment key={item.id}>
-              <BreadcrumbItem>
-                {isLink ? (
-                  <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                )}
-              </BreadcrumbItem>
-              {!isLast && <BreadcrumbSeparator />}
-            </Fragment>
-          );
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
+              const isLink = !!item.href && !item.isCurrent;
+
+              return (
+                <Fragment key={item.id}>
+                  <BreadcrumbItem>
+                    {isLink ? (
+                      <BreadcrumbLink asChild>
+                        <Link href={item.href!}>{item.label}</Link>
+                      </BreadcrumbLink>
+                    ) : (
+                      <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                    )}
+                  </BreadcrumbItem>
+                  {!isLast && <BreadcrumbSeparator />}
+                </Fragment>
+              );
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+      )}
+    </header>
   );
 }
 

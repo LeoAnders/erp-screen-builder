@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { KindIcon, kindLabels } from "./kind-icon";
 import type { ProjectFile } from "./project-types";
@@ -22,7 +23,7 @@ export function FileRow({ file, href = "#", updatedAtLabel }: FileRowProps) {
           href={href}
           className={cn(
             "group flex items-center gap-4 rounded-md px-1 py-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           )}
         >
           <div
@@ -47,6 +48,35 @@ export function FileRow({ file, href = "#", updatedAtLabel }: FileRowProps) {
 
       <TableCell className="text-sm text-muted-foreground">
         {updatedAtLabel ?? "—"}
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function FileTableRowSkeleton() {
+  return (
+    <TableRow className="border-b border-border/60">
+      {/* coluna: ícone + nome + subtítulo */}
+      <TableCell className="min-w-[320px]">
+        <div className="flex items-center gap-4 px-1 py-2">
+          {/* quadrado do ícone */}
+          <Skeleton className="h-12 w-12 rounded-lg" />
+
+          <div className="min-w-0 flex-1 space-y-2">
+            <Skeleton className="h-4 w-56" />
+            <Skeleton className="h-3 w-28" />
+          </div>
+        </div>
+      </TableCell>
+
+      {/* coluna: tipo */}
+      <TableCell className="text-sm text-muted-foreground">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+
+      {/* coluna: atualizado em */}
+      <TableCell className="text-sm text-muted-foreground">
+        <Skeleton className="h-4 w-24" />
       </TableCell>
     </TableRow>
   );

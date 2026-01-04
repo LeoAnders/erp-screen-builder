@@ -6,36 +6,48 @@ import { FileText, Plus } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { FileCard } from "@/components/projects/file-card";
-import { FileRow } from "@/components/projects/file-row";
+import { FileCard, FileCardSkeleton } from "@/components/projects/file-card";
+import { FileRow, FileTableRowSkeleton } from "@/components/projects/file-row";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatRelative, getErrorMessage } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { useSorting } from "@/hooks/use-sorting";
 import { useProjectFiles } from "@/hooks/use-project-files";
 import { usePageContextStore } from "@/lib/stores/page-context-store";
 import { useTeamStore } from "@/lib/stores/team-store";
+import { useDeferredLoading } from "@/hooks/use-deferred-loading";
+import { useViewPreferenceStore } from "@/lib/stores/view-preference-store";
 
 export default function ProjectFilesPage() {
   const params = useParams<{ projectId: string }>();
   const projectId = params?.projectId ?? null;
 
-  const [view, setView] = useState<"cards" | "list">("cards");
+  const { filesView, setFilesView } = useViewPreferenceStore();
+  const [view, setView] = useState<"cards" | "list">(filesView);
+
+  // Sincroniza o estado local com a store quando ela muda
+  useEffect(() => {
+    setView(filesView);
+  }, [filesView]);
+
+  // Atualiza a store quando o usuário muda a visualização
+  const handleViewChange = (newView: "cards" | "list") => {
+    setView(newView);
+    setFilesView(newView);
+  };
+
   const showCards = view === "cards";
 
   const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified",
+    "lastModified"
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
@@ -48,8 +60,6 @@ export default function ProjectFilesPage() {
 
   const projectTeamId = filesQuery.data?.project?.teamId ?? null;
   const projectName = filesQuery.data?.project?.name ?? null;
-
-  const filesLoading = filesQuery.isLoading || filesQuery.isPending;
 
   // Sempre que mudar de projeto, permite um novo autosync
   useEffect(() => {
@@ -73,12 +83,23 @@ export default function ProjectFilesPage() {
       setProjectContext({ projectId, projectName });
     }
 
-    return () => clearProjectContext();
+    return () => {
+      const currentContext = usePageContextStore.getState();
+      if (currentContext.projectId === projectId) {
+        clearProjectContext();
+      }
+    };
   }, [clearProjectContext, projectId, projectName, setProjectContext]);
 
   const items = useMemo(
     () => filesQuery.data?.items ?? [],
-    [filesQuery.data?.items],
+    [filesQuery.data?.items]
+  );
+
+  const hasFilesData = filesQuery.data != null || filesQuery.isPlaceholderData;
+  const showSkeleton = useDeferredLoading(
+    Boolean(projectId) && filesQuery.isPending && !hasFilesData,
+    180
   );
 
   const sortedItems = useSorting({
@@ -105,10 +126,7 @@ export default function ProjectFilesPage() {
     );
   }
 
-  const hasFiles = items.length > 0;
-
-  const projectLabel =
-    projectName ?? `Projeto ${shortId(projectId ?? undefined)}`;
+  const isEmpty = hasFilesData && items.length === 0;
 
   let content;
 
@@ -118,15 +136,13 @@ export default function ProjectFilesPage() {
         title="Erro ao carregar arquivos"
         message={getErrorMessage(
           filesQuery.error,
-          "Não foi possível recuperar a lista de arquivos.",
+          "Não foi possível recuperar a lista de arquivos."
         )}
         onRetry={() => filesQuery.refetch()}
         error={filesQuery.error}
       />
     );
-  } else if (filesLoading) {
-    content = showCards ? <FileCardsSkeleton /> : <FileTableSkeleton />;
-  } else if (!hasFiles) {
+  } else if (isEmpty) {
     content = (
       <EmptyState
         icon={FileText}
@@ -137,9 +153,18 @@ export default function ProjectFilesPage() {
   } else if (showCards) {
     content = (
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-        {sortedItems.map((file) => (
-          <FileCard key={file.id} file={file} />
-        ))}
+        {showSkeleton && !hasFilesData
+          ? Array.from({ length: 6 }).map((_, idx) => (
+              <FileCardSkeleton key={idx} />
+            ))
+          : sortedItems.map((file) => (
+              <div
+                key={file.id}
+                className="animate-in fade-in-0 zoom-in-98 duration-120 motion-reduce:animate-none"
+              >
+                <FileCard file={file} />
+              </div>
+            ))}
       </div>
     );
   } else {
@@ -153,14 +178,18 @@ export default function ProjectFilesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedItems.map((file) => (
-            <FileRow
-              key={file.id}
-              file={file}
-              href={`/projects/${projectId}/files/${file.id}`}
-              updatedAtLabel={formatRelative(file.updatedAt)}
-            />
-          ))}
+          {showSkeleton && !hasFilesData
+            ? Array.from({ length: 5 }).map((_, idx) => (
+                <FileTableRowSkeleton key={idx} />
+              ))
+            : sortedItems.map((file) => (
+                <FileRow
+                  key={file.id}
+                  file={file}
+                  href={`/projects/${projectId}/files/${file.id}`}
+                  updatedAtLabel={formatRelative(file.updatedAt)}
+                />
+              ))}
         </TableBody>
       </Table>
     );
@@ -170,14 +199,7 @@ export default function ProjectFilesPage() {
     <PageContainer className="flex h-full flex-col gap-6">
       <PageHeader
         title="Arquivos do Projeto"
-        description={
-          <>
-            <span className="font-semibold text-foreground">
-              {projectLabel}
-            </span>{" "}
-            · Visualize e gerencie os arquivos do projeto
-          </>
-        }
+        description="Visualize e gerencie os arquivos do projeto"
         actionLabel="Novo Arquivo"
         actionIcon={<Plus className="size-4" />}
       />
@@ -188,66 +210,10 @@ export default function ProjectFilesPage() {
         view={view}
         onSortByChange={(v) => setSortBy(v)}
         onOrderChange={(v) => setOrder(v)}
-        onViewChange={(v) => setView(v)}
+        onViewChange={handleViewChange}
       />
 
       <div className="flex-1 flex flex-col">{content}</div>
     </PageContainer>
   );
-}
-
-function FileCardsSkeleton() {
-  return (
-    <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-      {Array.from({ length: 6 }).map((_, idx) => (
-        <Card key={idx} className="rounded-2xl p-3">
-          <div className="grid aspect-16/10 grid-cols-2 gap-3 rounded-xl p-2">
-            <Skeleton className="rounded-lg" />
-            <Skeleton className="rounded-lg" />
-            <Skeleton className="rounded-lg" />
-            <Skeleton className="rounded-lg" />
-          </div>
-          <div className="px-1 pb-1 pt-3 space-y-2">
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-3 w-20" />
-          </div>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-function FileTableSkeleton() {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Arquivo</TableHead>
-          <TableHead className="w-[160px]">Tipo</TableHead>
-          <TableHead className="w-[180px]">Atualizado em</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Array.from({ length: 5 }).map((_, idx) => (
-          <TableRow key={idx} className="border-b">
-            <TableCell className="p-4">
-              <Skeleton className="h-4 w-56" />
-            </TableCell>
-            <TableCell className="p-4">
-              <Skeleton className="h-4 w-20" />
-            </TableCell>
-            <TableCell className="p-4">
-              <Skeleton className="h-4 w-24" />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
-function shortId(value: string | undefined): string {
-  if (!value) return "";
-  if (value.length > 12) return value.slice(0, 8);
-  return value;
 }

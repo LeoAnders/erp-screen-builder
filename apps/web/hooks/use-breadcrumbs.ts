@@ -90,10 +90,10 @@ function getFileNameFromCache(
   projectId: string,
   fileId: string,
 ): string | undefined {
-  const files = queryClient.getQueryData<ProjectFile[]>([
-    "project-files",
-    projectId,
-  ]);
-  const found = files?.find((file) => file.id === fileId);
+  const data = queryClient.getQueryData<{
+    project: Project;
+    items: ProjectFile[];
+  }>(["project-files", projectId]);
+  const found = data?.items?.find((file) => file.id === fileId);
   return found?.name;
 }

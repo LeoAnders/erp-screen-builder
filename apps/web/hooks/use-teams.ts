@@ -22,14 +22,16 @@ async function fetchTeams(): Promise<TeamDTO[]> {
 }
 
 export function useTeams() {
-  const { activeTeamId, setActiveTeamId } = useTeamStore();
+  const { activeTeamId, hasHydrated, setActiveTeamId } = useTeamStore();
 
   const query = useQuery({
     queryKey: ["teams"],
     queryFn: fetchTeams,
+    staleTime: 5 * 60_000,
   });
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (!query.data?.length) return;
 
     const teamIds = query.data.map((team) => team.id);
@@ -43,7 +45,7 @@ export function useTeams() {
     if (!activeTeamId) {
       setActiveTeamId(personalTeam?.id ?? query.data[0]?.id ?? null);
     }
-  }, [activeTeamId, query.data, setActiveTeamId]);
+  }, [activeTeamId, hasHydrated, query.data, setActiveTeamId]);
 
   return query;
 }
