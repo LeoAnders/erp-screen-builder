@@ -8,7 +8,19 @@ import { PropsWithChildren, useState } from "react";
  * Ele inicializa o QueryClient de forma preguiçosa (lazy) para evitar recriá-lo entre renderizações.
  */
 export function QueryClientProviderWrapper({ children }: PropsWithChildren) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60_000,
+            gcTime: 20 * 60_000,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: true,
+          },
+        },
+      }),
+  );
 
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
