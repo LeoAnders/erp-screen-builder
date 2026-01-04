@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight, Home, Star, Search } from "lucide-react";
+import Link from "next/link";
 
 import {
   Collapsible,
@@ -37,19 +38,19 @@ export function NavMain({ data }: Props) {
 
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a href={data.search.url}>
+              <Link href={data.search.url}>
                 <Search />
                 <span>{data.search.title}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a href={data.dashboard.url}>
+              <Link href={data.dashboard.url}>
                 <Home />
                 <span>{data.dashboard.title}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
@@ -68,9 +69,9 @@ export function NavMain({ data }: Props) {
                   {data.favorites.items.map((item) => (
                     <SidebarMenuSubItem key={item.title}>
                       <SidebarMenuSubButton asChild>
-                        <a href={item.url}>
+                        <Link href={item.url}>
                           <span>{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}
