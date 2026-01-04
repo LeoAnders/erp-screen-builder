@@ -31,13 +31,10 @@ async function fetchProjectFiles(
   return (await res.json()) as ProjectFilesResponse;
 }
 
-export function useProjectFiles(projectId: string | null) {
-  return useQuery<{ project: ProjectMeta; items: ProjectFile[] }, ApiError>({
-    queryKey: ["project-files", projectId],
-    enabled: Boolean(projectId),
+export function projectFilesQueryOptions(projectId: string) {
+  return {
+    queryKey: ["project-files", projectId] as const,
     queryFn: async () => {
-      if (!projectId) return { project: null as any, items: [] };
-
       const data = await fetchProjectFiles(projectId);
       return {
         project: data.project,
@@ -54,5 +51,15 @@ export function useProjectFiles(projectId: string | null) {
         })),
       };
     },
+  };
+}
+
+export function useProjectFiles(projectId: string | null) {
+  return useQuery<{ project: ProjectMeta; items: ProjectFile[] }, ApiError>({
+    queryKey: ["project-files", projectId],
+    enabled: Boolean(projectId),
+    queryFn: projectId
+      ? projectFilesQueryOptions(projectId).queryFn
+      : async () => ({ project: null as any, items: [] }),
   });
 }
