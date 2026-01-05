@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -46,6 +47,7 @@ export function CreateProjectModal({
 }: CreateProjectModalProps) {
   const { activeTeamId } = useTeamStore();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const form = useForm<CreateProjectInput>({
     resolver: zodSafeResolver(createProjectSchema),
@@ -140,6 +142,11 @@ export function CreateProjectModal({
       });
 
       onOpenChange(false);
+
+      const projectId = data?.project?.id as string | undefined;
+      if (projectId) {
+        router.push(`/projects/${projectId}/files`);
+      }
     },
   });
 
