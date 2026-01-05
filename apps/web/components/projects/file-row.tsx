@@ -34,7 +34,9 @@ export function FileRow({ file, href = "#", updatedAtLabel }: FileRowProps) {
           </div>
 
           <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{file.name}</p>
+            <p className="block max-w-[200px] truncate font-medium text-foreground sm:max-w-[260px] md:max-w-[320px] lg:max-w-[420px]">
+              {file.name}
+            </p>
             <p className="text-xs text-muted-foreground">
               {file.editedBy?.name ?? kindLabels[kind]}
             </p>

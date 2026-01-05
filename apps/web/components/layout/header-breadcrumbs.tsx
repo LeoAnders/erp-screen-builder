@@ -41,7 +41,7 @@ export function HeaderBreadcrumbs() {
 
       {displayCrumbs.length > 0 && (
         <Breadcrumb>
-          <BreadcrumbList>
+          <BreadcrumbList className="min-w-0 flex-nowrap">
             {displayCrumbs.map((item, index) => {
               const isLast = index === displayCrumbs.length - 1;
 
@@ -63,10 +63,18 @@ export function HeaderBreadcrumbs() {
                   <BreadcrumbItem>
                     {isLink ? (
                       <BreadcrumbLink asChild>
-                        <Link href={item.href!}>{item.label}</Link>
+                        <Link href={item.href!} className="min-w-0">
+                          <span className="block max-w-[140px] truncate sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px]">
+                            {item.label}
+                          </span>
+                        </Link>
                       </BreadcrumbLink>
                     ) : (
-                      <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                      <BreadcrumbPage className="min-w-0">
+                        <span className="block max-w-[140px] truncate sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px]">
+                          {item.label}
+                        </span>
+                      </BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
                   {!isLast && <BreadcrumbSeparator />}
