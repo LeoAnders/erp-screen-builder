@@ -1,6 +1,5 @@
 export type ProjectSeed = {
   name: string;
-  description?: string;
   files: string[];
 };
 

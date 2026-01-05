@@ -7,7 +7,6 @@ import { Plus, FolderOpen } from "lucide-react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -33,10 +32,12 @@ import { useTeams } from "@/hooks/use-teams";
 import { useTeamStore } from "@/lib/stores/team-store";
 import { useDeferredLoading } from "@/hooks/use-deferred-loading";
 import { useViewPreferenceStore } from "@/lib/stores/view-preference-store";
+import { CreateProjectModal } from "@/components/modals/create-project-modal";
 
 export default function ProjectsPage() {
   const { projectsView, setProjectsView } = useViewPreferenceStore();
   const [view, setView] = useState<"cards" | "list">(projectsView);
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Sincroniza o estado local com a store quando ela muda
   useEffect(() => {
@@ -167,6 +168,7 @@ export default function ProjectsPage() {
         description="Gerencie e acesse os projetos da equipe"
         actionLabel="Novo Projeto"
         actionIcon={<Plus className="size-4" />}
+        onActionClick={() => setCreateOpen(true)}
       />
 
       <ListToolbar
@@ -179,6 +181,8 @@ export default function ProjectsPage() {
       />
 
       <div className="flex-1 flex flex-col">{content}</div>
+
+      <CreateProjectModal open={createOpen} onOpenChange={setCreateOpen} />
     </PageContainer>
   );
 }

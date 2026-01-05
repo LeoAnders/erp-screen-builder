@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Folder, MoreHorizontal, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -13,6 +14,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CreateProjectModal } from "@/components/modals/create-project-modal";
 
 type Project = {
   id: string;
@@ -24,7 +26,6 @@ export function NavProjects({
   projects,
   total,
   viewAllUrl = "/projects",
-  newProjectUrl = "/projects/new",
   maxVisible = 5,
   isLoading = false,
   isError = false,
@@ -33,7 +34,6 @@ export function NavProjects({
   projects: Project[];
   total: number;
   viewAllUrl?: string;
-  newProjectUrl?: string;
   maxVisible?: number;
   isLoading?: boolean;
   isError?: boolean;
@@ -41,16 +41,27 @@ export function NavProjects({
 }) {
   const visible = projects.slice(0, maxVisible);
   const showViewAll = total > maxVisible;
+  const [createOpen, setCreateOpen] = useState(false);
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projetos</SidebarGroupLabel>
-
-      <SidebarGroupAction asChild title="Novo projeto">
-        <Link href={newProjectUrl}>
-          <Plus className="h-4 w-4" />
-          <span className="sr-only">Novo projeto</span>
+      <SidebarGroupLabel asChild>
+        <Link
+          href={viewAllUrl}
+          className="cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          Projetos
         </Link>
+      </SidebarGroupLabel>
+
+      <SidebarGroupAction
+        title="Novo projeto"
+        type="button"
+        onClick={() => setCreateOpen(true)}
+        aria-label="Novo projeto"
+      >
+        <Plus className="h-4 w-4" />
+        <span className="sr-only">Novo projeto</span>
       </SidebarGroupAction>
 
       <SidebarGroupContent>
@@ -109,6 +120,8 @@ export function NavProjects({
           ) : null}
         </SidebarMenu>
       </SidebarGroupContent>
+
+      <CreateProjectModal open={createOpen} onOpenChange={setCreateOpen} />
     </SidebarGroup>
   );
 }

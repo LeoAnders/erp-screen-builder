@@ -16,7 +16,6 @@ export type ProjectFilePreviewDTO = {
 export type ProjectListItemDTO = {
   id: string;
   name: string;
-  description: string | null;
   teamId: string;
   createdAt: string;
   updatedAt: string;

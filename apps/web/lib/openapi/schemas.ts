@@ -37,7 +37,6 @@ export const ProjectFilePreviewSchema = z.object({
 export const ProjectSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
-  description: z.string().nullable(),
   teamId: z.string().uuid(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),

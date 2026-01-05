@@ -1,29 +1,36 @@
 import { z } from "zod";
 
-export const createTeamSchema = z.object({
-  name: z.string().min(1, "name is required"),
-  description: z.string().optional(),
-});
-
 export const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const isUuid = (value: string) => UUID_REGEX.test(value);
 
-export const createProjectSchema = z.object({
-  name: z.string().min(1, "name is required"),
+export const createTeamSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
   description: z.string().optional(),
-  teamId: z
+});
+
+export const createProjectSchema = z.object({
+  name: z
     .string()
-    .regex(UUID_REGEX, { message: "teamId must be a valid uuid" }),
+    .transform((v) => v.trim().replace(/\s+/g, " "))
+    .refine((v) => v.length > 0, {
+      message: "Nome é obrigatório",
+    }),
+  teamId: z.string().regex(UUID_REGEX, { message: "Time inválido" }),
 });
 
 export const createFileSchema = z.object({
-  name: z.string().min(1, "name is required"),
-  projectId: z
-    .string()
-    .regex(UUID_REGEX, { message: "projectId must be a valid uuid" }),
-  template: z.enum(["blank"]),
+  name: z.preprocess(
+    (value) => {
+      if (typeof value !== "string") return value;
+      const sanitized = value.trim().replace(/\s+/g, " ");
+      return sanitized.length ? sanitized : undefined;
+    },
+    z.string().optional(),
+  ),
+  projectId: z.string().regex(UUID_REGEX, { message: "Projeto inválido" }),
+  template: z.enum(["blank"], { message: "Template inválido" }),
 });
 
 const jsonObjectSchema = z
@@ -31,12 +38,15 @@ const jsonObjectSchema = z
   .refine(
     (value): value is Record<string, unknown> =>
       !!value && typeof value === "object" && !Array.isArray(value),
-    { message: "schema_json must be an object" },
+    { message: "schema_json deve ser um objeto" }
   );
 
 export const updateFileSchema = z.object({
   schema_json: jsonObjectSchema,
-  expected_revision: z.number().int().min(1, "expected_revision must be >= 1"),
+  expected_revision: z
+    .number()
+    .int("expected_revision deve ser um inteiro")
+    .min(1, "expected_revision deve ser maior ou igual a 1"),
 });
 
 export type CreateTeamInput = z.infer<typeof createTeamSchema>;

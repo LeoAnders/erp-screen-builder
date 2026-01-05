@@ -32,7 +32,11 @@ export function PageHeader({
       </div>
 
       {actionLabel ? (
-        <Button size="sm" className="gap-2" onClick={onActionClick}>
+        <Button
+          size="sm"
+          className="gap-2 cursor-pointer"
+          onClick={onActionClick}
+        >
           {actionIcon}
           {actionLabel}
         </Button>

@@ -8,7 +8,6 @@ export type ProjectFilePreview = {
 export type Project = {
   id: string;
   name: string;
-  description?: string | null;
   teamId: string;
   createdAt?: string;
   updatedAt?: string;

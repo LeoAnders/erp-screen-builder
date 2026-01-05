@@ -63,6 +63,9 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.62 0.17 145);
+  --warning: oklch(0.78 0.16 85);
+  --info: oklch(0.66 0.15 230);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -97,6 +100,9 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.72 0.16 145);
+  --warning: oklch(0.82 0.15 85);
+  --info: oklch(0.74 0.14 230);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -173,4 +179,29 @@
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
+}
+
+/* Sonner Toast Styles (soft: apenas error + warning) */
+:root {
+  --toast-tint: 10%;
+}
+
+[data-sonner-toast][data-type="error"],
+[data-sonner-toast].sonner-error {
+  --normal-bg: color-mix(
+    in oklab,
+    var(--destructive) var(--toast-tint),
+    var(--background)
+  ) !important;
+  --normal-border: var(--destructive) !important;
+}
+
+[data-sonner-toast][data-type="warning"],
+[data-sonner-toast].sonner-warning {
+  --normal-bg: color-mix(
+    in oklab,
+    var(--warning) var(--toast-tint),
+    var(--background)
+  ) !important;
+  --normal-border: var(--warning) !important;
 }
