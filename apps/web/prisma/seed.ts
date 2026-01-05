@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { getSchemaDefaults } from "../lib/schemaDefaults";
+import { sanitizeName, normalizeName } from "../lib/text";
 import { EDITORS, TEAM_SEEDS } from "./seed/data";
 
 loadEnv();
@@ -39,8 +40,11 @@ async function main() {
         const createdAt = buildProjectCreatedAt(now, teamIndex, projectIndex);
         const updatedAt = buildProjectUpdatedAt(now, teamIndex, projectIndex);
 
+        const name = sanitizeName(projectSeed.name);
+        const nameNormalized = normalizeName(projectSeed.name);
+
         const existingProject = await tx.project.findFirst({
-          where: { teamId: team.id, name: projectSeed.name },
+          where: { teamId: team.id, nameNormalized },
         });
 
         const project =
@@ -48,10 +52,8 @@ async function main() {
           (await tx.project.create({
             data: {
               teamId: team.id,
-              name: projectSeed.name,
-              description:
-                projectSeed.description ??
-                `Projeto ${projectSeed.name.toLowerCase()} do time ${team.name}.`,
+              name,
+              nameNormalized,
               createdAt,
               updatedAt,
             },
@@ -65,7 +67,7 @@ async function main() {
             now,
             teamIndex,
             projectIndex,
-            fileIndex,
+            fileIndex
           );
 
           return {
@@ -93,7 +95,7 @@ async function main() {
 function buildProjectCreatedAt(
   now: Date,
   teamIndex: number,
-  projectIndex: number,
+  projectIndex: number
 ) {
   const daysOffset = teamIndex * 4 + projectIndex + 2;
   return new Date(now.getTime() - daysOffset * 86400000);
@@ -102,7 +104,7 @@ function buildProjectCreatedAt(
 function buildProjectUpdatedAt(
   now: Date,
   teamIndex: number,
-  projectIndex: number,
+  projectIndex: number
 ) {
   const hoursOffset = teamIndex * 12 + projectIndex * 6 + 3;
   return new Date(now.getTime() - hoursOffset * 3600000);
@@ -112,7 +114,7 @@ function buildFileUpdatedAt(
   now: Date,
   teamIndex: number,
   projectIndex: number,
-  fileIndex: number,
+  fileIndex: number
 ) {
   const hoursOffset = teamIndex * 18 + projectIndex * 6 + fileIndex + 1;
   return new Date(now.getTime() - hoursOffset * 3600000);

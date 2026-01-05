@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createFileSchema } from "@/lib/validators";
+import { sanitizeName } from "@/lib/text";
 import {
   jsonError,
   parseBody,
@@ -115,11 +116,12 @@ export async function POST(req: Request) {
     }
 
     const defaults = getSchemaDefaults(parsed.data.template);
+    const name = parsed.data.name ? sanitizeName(parsed.data.name) : undefined;
 
     const file = await prisma.file.create({
       data: {
         projectId: parsed.data.projectId,
-        name: parsed.data.name,
+        ...(name ? { name } : {}),
         template: parsed.data.template,
         schemaJson: defaults as Prisma.InputJsonValue,
         schemaVersion: defaults.schemaVersion,
