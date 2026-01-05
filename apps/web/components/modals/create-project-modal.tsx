@@ -195,6 +195,7 @@ export function CreateProjectModal({
                   autoFocus
                   disabled={mutation.isPending}
                   aria-invalid={!!nameError}
+                  maxLength={100}
                   className={[
                     "h-11",
                     nameError

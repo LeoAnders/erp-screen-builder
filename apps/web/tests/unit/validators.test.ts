@@ -19,6 +19,12 @@ describe("createTeamSchema", () => {
   it("rejects missing name", () => {
     expect(() => createTeamSchema.parse({ description: "no name" })).toThrow();
   });
+
+  it("rejects name longer than 50 characters", () => {
+    expect(() =>
+      createTeamSchema.parse({ name: "a".repeat(51) })
+    ).toThrow();
+  });
 });
 
 describe("createProjectSchema", () => {
@@ -47,6 +53,15 @@ describe("createProjectSchema", () => {
     expect(() =>
       createProjectSchema.parse({
         name: "   ",
+        teamId: "123e4567-e89b-12d3-a456-426614174000",
+      })
+    ).toThrow();
+  });
+
+  it("rejects name longer than 100 characters", () => {
+    expect(() =>
+      createProjectSchema.parse({
+        name: "a".repeat(101),
         teamId: "123e4567-e89b-12d3-a456-426614174000",
       })
     ).toThrow();
@@ -88,6 +103,16 @@ describe("createFileSchema", () => {
     });
 
     expect(parsed.name).toBeUndefined();
+  });
+
+  it("rejects name longer than 100 characters", () => {
+    expect(() =>
+      createFileSchema.parse({
+        name: "a".repeat(101),
+        projectId: "123e4567-e89b-12d3-a456-426614174000",
+        template: "blank",
+      })
+    ).toThrow();
   });
 
   it("rejects unsupported template", () => {

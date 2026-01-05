@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "File" ALTER COLUMN "name" TYPE VARCHAR(100);
+
+-- AlterTable
+ALTER TABLE "Project" ALTER COLUMN "name" TYPE VARCHAR(100),
+ALTER COLUMN "name_normalized" TYPE VARCHAR(100);
+
+-- AlterTable
+ALTER TABLE "Team" ALTER COLUMN "name" TYPE VARCHAR(50);
