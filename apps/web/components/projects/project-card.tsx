@@ -51,7 +51,7 @@ function EmptySlot({ onClick }: { onClick?: () => void }) {
       type="button"
       onClick={onClick}
       className={cn(
-        "group/slot relative h-full w-full overflow-hidden rounded-lg",
+        "group/slot relative h-full w-full overflow-hidden rounded-lg cursor-pointer",
         "border border-dashed border-gray-100/20",
         "bg-muted/10 text-muted-foreground",
         "transition-colors hover:bg-muted/20 hover:border-gray-100/35",

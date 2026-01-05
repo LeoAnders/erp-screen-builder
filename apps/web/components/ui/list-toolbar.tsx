@@ -47,7 +47,7 @@ export function ListToolbar({
           <Button
             variant="outline"
             size="sm"
-            className="min-w-[220px] justify-between gap-2"
+            className="min-w-[220px] justify-between gap-2 cursor-pointer"
           >
             <span className="truncate">{sortLabel}</span>
             <ChevronDown className="size-4 shrink-0 opacity-70" />
@@ -90,10 +90,18 @@ export function ListToolbar({
         value={view}
         onValueChange={(val) => val && onViewChange(val as View)}
       >
-        <ToggleGroupItem value="cards" aria-label="Ver em cards">
+        <ToggleGroupItem
+          value="cards"
+          aria-label="Ver em cards"
+          className="cursor-pointer"
+        >
           <LayoutGrid className="size-4" />
         </ToggleGroupItem>
-        <ToggleGroupItem value="list" aria-label="Ver em lista">
+        <ToggleGroupItem
+          value="list"
+          aria-label="Ver em lista"
+          className="cursor-pointer"
+        >
           <List className="size-4" />
         </ToggleGroupItem>
       </ToggleGroup>
