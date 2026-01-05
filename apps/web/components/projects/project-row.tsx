@@ -49,7 +49,9 @@ export function ProjectRow({
           <ProjectMiniGrid previews={previews} />
 
           <div className="min-w-0">
-            <span className="truncate font-medium text-foreground">{name}</span>
+            <span className="block max-w-[200px] truncate font-medium text-foreground sm:max-w-[260px] md:max-w-[320px] lg:max-w-[420px]">
+              {name}
+            </span>
           </div>
         </Link>
       </TableCell>

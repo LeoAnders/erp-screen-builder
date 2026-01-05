@@ -63,7 +63,7 @@ model VerificationToken {
 /// Business models
 model Team {
   id         String         @id @default(uuid()) @db.Uuid
-  name       String         @unique
+  name       String         @unique @db.VarChar(50)
   visibility TeamVisibility @default(public)
   type       TeamType       @default(normal)
   ownerId    String?        @map("owner_id")
@@ -81,8 +81,8 @@ model Team {
 
 model Project {
   id             String   @id @default(uuid()) @db.Uuid
-  name           String
-  nameNormalized String   @map("name_normalized")
+  name           String   @db.VarChar(100)
+  nameNormalized String   @map("name_normalized") @db.VarChar(100)
   teamId         String   @map("team_id") @db.Uuid
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -110,7 +110,7 @@ enum TeamType {
 
 model File {
   id            String       @id @default(uuid()) @db.Uuid
-  name          String       @default("Untitled")
+  name          String       @default("Untitled") @db.VarChar(100)
   template      FileTemplate @default(blank)
   schemaVersion String       @default("1.0.0") @map("schema_version") @db.Text
   schemaJson    Json         @map("schema_json")

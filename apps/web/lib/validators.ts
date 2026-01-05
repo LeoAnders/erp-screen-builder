@@ -6,29 +6,34 @@ export const UUID_REGEX =
 export const isUuid = (value: string) => UUID_REGEX.test(value);
 
 export const createTeamSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
+  name: z
+    .string()
+    .min(1, "Nome é obrigatório")
+    .max(50, "Nome deve ter no máximo 50 caracteres"),
   description: z.string().optional(),
 });
 
-export const createProjectSchema = z.object({
-  name: z
-    .string()
-    .transform((v) => v.trim().replace(/\s+/g, " "))
-    .refine((v) => v.length > 0, {
-      message: "Nome é obrigatório",
-    }),
-  teamId: z.string().regex(UUID_REGEX, { message: "Time inválido" }),
-});
+export const createProjectSchema = z
+  .object({
+    name: z
+      .string()
+      .transform((v) => v.trim().replace(/\s+/g, " "))
+      .refine((v) => v.length > 0, {
+        message: "Nome é obrigatório",
+      }),
+    teamId: z.string().regex(UUID_REGEX, { message: "Time inválido" }),
+  })
+  .refine((data) => data.name.length <= 100, {
+    message: "Nome deve ter no máximo 100 caracteres",
+    path: ["name"],
+  });
 
 export const createFileSchema = z.object({
-  name: z.preprocess(
-    (value) => {
-      if (typeof value !== "string") return value;
-      const sanitized = value.trim().replace(/\s+/g, " ");
-      return sanitized.length ? sanitized : undefined;
-    },
-    z.string().optional(),
-  ),
+  name: z.preprocess((value) => {
+    if (typeof value !== "string") return value;
+    const sanitized = value.trim().replace(/\s+/g, " ");
+    return sanitized.length ? sanitized : undefined;
+  }, z.string().max(100, "Nome deve ter no máximo 100 caracteres").optional()),
   projectId: z.string().regex(UUID_REGEX, { message: "Projeto inválido" }),
   template: z.enum(["blank"], { message: "Template inválido" }),
 });
