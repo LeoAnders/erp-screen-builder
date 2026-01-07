@@ -5,6 +5,8 @@ export type TeamDTO = {
   type: "personal" | "normal";
   ownerId: string | null;
   isFavorite: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ProjectFilePreviewDTO = {

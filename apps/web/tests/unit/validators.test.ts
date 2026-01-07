@@ -11,13 +11,16 @@ describe("createTeamSchema", () => {
   it("accepts a valid payload", () => {
     const parsed = createTeamSchema.parse({
       name: "Team A",
-      description: "ok",
     });
-    expect(parsed).toEqual({ name: "Team A", description: "ok" });
+    expect(parsed).toEqual({ name: "Team A" });
   });
 
   it("rejects missing name", () => {
-    expect(() => createTeamSchema.parse({ description: "no name" })).toThrow();
+    expect(() => createTeamSchema.parse({})).toThrow();
+  });
+
+  it("rejects name with only spaces", () => {
+    expect(() => createTeamSchema.parse({ name: "   " })).toThrow();
   });
 
   it("rejects name longer than 50 characters", () => {

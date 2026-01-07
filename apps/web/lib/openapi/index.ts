@@ -68,7 +68,7 @@ registry.registerPath({
   tags: ["Teams"],
   responses: {
     200: {
-      description: "List teams",
+      description: "List teams (personal + public)",
       content: {
         "application/json": {
           schema: ListTeamsResponse,
@@ -97,7 +97,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Team created",
+      description: "Public team created",
       content: {
         "application/json": {
           schema: z.object({ team: Team }),

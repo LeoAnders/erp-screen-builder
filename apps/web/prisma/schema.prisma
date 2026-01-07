@@ -14,7 +14,8 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  teams Team[] @relation("TeamOwner")
+  teams        Team[] @relation("TeamOwner")
+  createdTeams Team[] @relation("TeamCreator")
 
   accounts Account[]
   sessions Session[]
@@ -63,20 +64,28 @@ model VerificationToken {
 /// Business models
 model Team {
   id         String         @id @default(uuid()) @db.Uuid
-  name       String         @unique @db.VarChar(50)
+  name       String         @db.VarChar(50)
+  nameNormalized String     @map("name_normalized") @db.VarChar(50)
+  /// Scope de unicidade: "public" para times públicos; "private:<ownerId>" para privados/pessoais
+  scopeKey   String         @map("scope_key") @db.VarChar(80)
   visibility TeamVisibility @default(public)
   type       TeamType       @default(normal)
   ownerId    String?        @map("owner_id")
+  createdById String?       @map("created_by_id")
   isFavorite Boolean        @default(false) @map("is_favorite")
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
 
   owner User? @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdBy User? @relation("TeamCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   projects Project[]
 
   @@index([ownerId])
+  @@index([createdById])
   @@index([visibility])
+  @@index([scopeKey])
+  @@unique([scopeKey, nameNormalized])
 }
 
 model Project {

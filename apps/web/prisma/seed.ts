@@ -21,15 +21,21 @@ async function main() {
 
   for (const [teamIndex, teamSeed] of TEAM_SEEDS.entries()) {
     await prisma.$transaction(async (tx) => {
+      const name = sanitizeName(teamSeed.name);
+      const nameNormalized = normalizeName(teamSeed.name);
+      const scopeKey = "public";
+
       const existingTeam = await tx.team.findFirst({
-        where: { name: teamSeed.name },
+        where: { scopeKey, nameNormalized },
       });
 
       const team =
         existingTeam ??
         (await tx.team.create({
           data: {
-            name: teamSeed.name,
+            name,
+            nameNormalized,
+            scopeKey,
             visibility: "public",
             type: "normal",
             isFavorite: teamSeed.isFavorite ?? teamIndex % 2 === 0,

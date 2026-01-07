@@ -8,10 +8,26 @@ import {
   requireSession,
 } from "@/lib/api-helpers";
 import { getSessionUserId } from "@/lib/session";
+import { normalizeName, sanitizeName } from "@/lib/text";
+
+const teamSelect = {
+  id: true,
+  name: true,
+  visibility: true,
+  type: true,
+  ownerId: true,
+  isFavorite: true,
+  createdAt: true,
+  updatedAt: true,
+};
 
 async function findOrCreatePersonalTeam(userId: string) {
+  const scopeKey = `private:${userId}`;
+  const normalizedName = normalizeName(sanitizeName("Meu Time"));
+
   let team = await prisma.team.findFirst({
-    where: { ownerId: userId, type: "personal" },
+    where: { scopeKey, type: "personal" },
+    select: teamSelect,
   });
 
   if (team) return team;
@@ -20,16 +36,21 @@ async function findOrCreatePersonalTeam(userId: string) {
     team = await prisma.team.create({
       data: {
         name: "Meu Time",
+        nameNormalized: normalizedName,
+        scopeKey,
         ownerId: userId,
+        createdById: userId,
         type: "personal",
         visibility: "private",
       },
+      select: teamSelect,
     });
   } catch (error) {
     const code = (error as { code?: string } | null)?.code;
     if (code === "P2002") {
       team = await prisma.team.findFirst({
-        where: { ownerId: userId, type: "personal" },
+        where: { scopeKey, type: "personal" },
+        select: teamSelect,
       });
     } else {
       throw error;
@@ -55,8 +76,9 @@ export async function GET() {
   try {
     const personalTeam = await findOrCreatePersonalTeam(userId);
     const publicTeams = await prisma.team.findMany({
-      where: { visibility: "public" },
-      orderBy: { name: "asc" },
+      where: { scopeKey: "public", visibility: "public" },
+      orderBy: { nameNormalized: "asc" },
+      select: teamSelect,
     });
 
     return NextResponse.json({ items: [personalTeam, ...publicTeams] });
@@ -82,13 +104,39 @@ export async function POST(req: Request) {
   }
 
   try {
+    const name = sanitizeName(parsed.data.name);
+    if (!name) {
+      return jsonError(400, "INVALID_NAME", "Nome é obrigatório");
+    }
+
+    const nameNormalized = normalizeName(parsed.data.name);
+    const scopeKey = "public";
+
+    const existing = await prisma.team.findFirst({
+      where: { scopeKey, nameNormalized },
+      select: { id: true },
+    });
+
+    if (existing) {
+      return jsonError(
+        409,
+        "TEAM_ALREADY_EXISTS",
+        "Já existe um time com este nome neste escopo.",
+        { field: "name" }
+      );
+    }
+
     const team = await prisma.team.create({
       data: {
-        name: parsed.data.name,
-        ownerId: userId,
+        name,
+        nameNormalized,
+        scopeKey,
+        createdById: userId,
+        ownerId: null,
         type: "normal",
         visibility: "public",
       },
+      select: teamSelect,
     });
 
     return NextResponse.json({ team });
@@ -96,7 +144,12 @@ export async function POST(req: Request) {
     console.error("[POST /api/teams] error", error);
     const code = (error as { code?: string } | null)?.code;
     if (code === "P2002") {
-      return jsonError(409, "TEAM_ALREADY_EXISTS", "Team name already exists");
+      return jsonError(
+        409,
+        "TEAM_ALREADY_EXISTS",
+        "Já existe um time com este nome neste escopo.",
+        { field: "name" }
+      );
     }
     return jsonError(500, "INTERNAL_ERROR", "Unexpected error");
   }
