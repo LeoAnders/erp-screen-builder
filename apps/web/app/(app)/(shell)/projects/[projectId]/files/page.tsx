@@ -47,7 +47,7 @@ export default function ProjectFilesPage() {
   const showCards = view === "cards";
 
   const [sortBy, setSortBy] = useState<"alphabetical" | "lastModified">(
-    "lastModified"
+    "lastModified",
   );
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
 
@@ -93,13 +93,13 @@ export default function ProjectFilesPage() {
 
   const items = useMemo(
     () => filesQuery.data?.items ?? [],
-    [filesQuery.data?.items]
+    [filesQuery.data?.items],
   );
 
   const hasFilesData = filesQuery.data != null || filesQuery.isPlaceholderData;
   const showSkeleton = useDeferredLoading(
     Boolean(projectId) && filesQuery.isPending && !hasFilesData,
-    180
+    180,
   );
 
   const sortedItems = useSorting({
@@ -136,7 +136,7 @@ export default function ProjectFilesPage() {
         title="Erro ao carregar arquivos"
         message={getErrorMessage(
           filesQuery.error,
-          "Não foi possível recuperar a lista de arquivos."
+          "Não foi possível recuperar a lista de arquivos.",
         )}
         onRetry={() => filesQuery.refetch()}
         error={filesQuery.error}

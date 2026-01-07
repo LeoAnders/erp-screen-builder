@@ -22,6 +22,6 @@ export const useViewPreferenceStore = create<ViewPreferenceStore>()(
     }),
     {
       name: "erp-screen-builder-view-preference",
-    }
-  )
+    },
+  ),
 );

@@ -122,7 +122,7 @@ export async function POST(req: Request) {
         409,
         "TEAM_ALREADY_EXISTS",
         "Já existe um time com este nome neste escopo.",
-        { field: "name" }
+        { field: "name" },
       );
     }
 
@@ -148,7 +148,7 @@ export async function POST(req: Request) {
         409,
         "TEAM_ALREADY_EXISTS",
         "Já existe um time com este nome neste escopo.",
-        { field: "name" }
+        { field: "name" },
       );
     }
     return jsonError(500, "INTERNAL_ERROR", "Unexpected error");

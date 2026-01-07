@@ -46,7 +46,13 @@ export function useTeams() {
     if (!activeTeamId) {
       setActiveTeamId(personalTeam?.id ?? query.data[0]?.id ?? null);
     }
-  }, [activeTeamId, hasHydrated, query.data, query.isFetching, setActiveTeamId]);
+  }, [
+    activeTeamId,
+    hasHydrated,
+    query.data,
+    query.isFetching,
+    setActiveTeamId,
+  ]);
 
   return query;
 }

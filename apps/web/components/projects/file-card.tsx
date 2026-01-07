@@ -26,7 +26,7 @@ export function FileCard({ file, href, className }: FileCardProps) {
         "group relative overflow-hidden rounded-2xl bg-card/40 p-3 transition",
         "hover:bg-card/70 hover:shadow-sm",
         "h-[180px]",
-        className
+        className,
       )}
     >
       <Link

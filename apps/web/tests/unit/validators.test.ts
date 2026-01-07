@@ -24,9 +24,7 @@ describe("createTeamSchema", () => {
   });
 
   it("rejects name longer than 50 characters", () => {
-    expect(() =>
-      createTeamSchema.parse({ name: "a".repeat(51) })
-    ).toThrow();
+    expect(() => createTeamSchema.parse({ name: "a".repeat(51) })).toThrow();
   });
 });
 
@@ -57,7 +55,7 @@ describe("createProjectSchema", () => {
       createProjectSchema.parse({
         name: "   ",
         teamId: "123e4567-e89b-12d3-a456-426614174000",
-      })
+      }),
     ).toThrow();
   });
 
@@ -66,13 +64,13 @@ describe("createProjectSchema", () => {
       createProjectSchema.parse({
         name: "a".repeat(101),
         teamId: "123e4567-e89b-12d3-a456-426614174000",
-      })
+      }),
     ).toThrow();
   });
 
   it("rejects invalid uuid", () => {
     expect(() =>
-      createProjectSchema.parse({ name: "Project", teamId: "not-uuid" })
+      createProjectSchema.parse({ name: "Project", teamId: "not-uuid" }),
     ).toThrow();
   });
 });
@@ -114,7 +112,7 @@ describe("createFileSchema", () => {
         name: "a".repeat(101),
         projectId: "123e4567-e89b-12d3-a456-426614174000",
         template: "blank",
-      })
+      }),
     ).toThrow();
   });
 
@@ -124,7 +122,7 @@ describe("createFileSchema", () => {
         name: "File",
         projectId: "123e4567-e89b-12d3-a456-426614174000",
         template: "form",
-      })
+      }),
     ).toThrow();
   });
 });
@@ -144,7 +142,7 @@ describe("updateFileSchema", () => {
       updateFileSchema.parse({
         schema_json: "not-an-object",
         expected_revision: 1,
-      })
+      }),
     ).toThrow();
   });
 
@@ -153,7 +151,7 @@ describe("updateFileSchema", () => {
       updateFileSchema.parse({
         schema_json: {},
         expected_revision: 1.5,
-      })
+      }),
     ).toThrow();
   });
 });

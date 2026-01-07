@@ -55,7 +55,7 @@ function EmptySlot({ onClick }: { onClick?: () => void }) {
         "border border-dashed border-gray-100/20",
         "bg-muted/10 text-muted-foreground",
         "transition-colors hover:bg-muted/20 hover:border-gray-100/35",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       )}
       aria-label="Criar novo arquivo"
     >
@@ -90,7 +90,7 @@ export function ProjectCard({
       className={cn(
         "group relative overflow-hidden rounded-2xl bg-card/40 p-3 transition",
         "hover:bg-card/70 hover:shadow-sm",
-        className
+        className,
       )}
       onMouseEnter={prefetchFiles}
       onFocusCapture={prefetchFiles}
@@ -124,7 +124,7 @@ export function ProjectCard({
               key={`empty-${idx}`}
               onClick={onCreateFile ? () => onCreateFile(id) : undefined}
             />
-          )
+          ),
         )}
       </div>
     </Card>

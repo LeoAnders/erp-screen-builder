@@ -23,7 +23,7 @@ export function FileRow({ file, href = "#", updatedAtLabel }: FileRowProps) {
           href={href}
           className={cn(
             "group flex items-center gap-4 rounded-md px-1 py-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           )}
         >
           <div

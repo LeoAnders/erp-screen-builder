@@ -24,7 +24,7 @@ function readEnvFile(filePath: string): Record<string, string> {
     let value = line.slice(eqIndex + 1).trim();
 
     if (
-      (value.startsWith("\"") && value.endsWith("\"")) ||
+      (value.startsWith('"') && value.endsWith('"')) ||
       (value.startsWith("'") && value.endsWith("'"))
     ) {
       value = value.slice(1, -1);
@@ -36,7 +36,9 @@ function readEnvFile(filePath: string): Record<string, string> {
   return env;
 }
 
-async function checkDatabaseConnection(databaseUrl: string): Promise<CheckResult> {
+async function checkDatabaseConnection(
+  databaseUrl: string,
+): Promise<CheckResult> {
   const client = new Client({ connectionString: databaseUrl });
   try {
     await client.connect();
@@ -84,6 +86,6 @@ async function run() {
 }
 
 run().catch((error) => {
-    console.error("ERRO: Healthcheck falhou", error);
+  console.error("ERRO: Healthcheck falhou", error);
   process.exit(1);
 });
