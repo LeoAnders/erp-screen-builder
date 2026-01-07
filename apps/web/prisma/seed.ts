@@ -21,15 +21,21 @@ async function main() {
 
   for (const [teamIndex, teamSeed] of TEAM_SEEDS.entries()) {
     await prisma.$transaction(async (tx) => {
+      const name = sanitizeName(teamSeed.name);
+      const nameNormalized = normalizeName(teamSeed.name);
+      const scopeKey = "public";
+
       const existingTeam = await tx.team.findFirst({
-        where: { name: teamSeed.name },
+        where: { scopeKey, nameNormalized },
       });
 
       const team =
         existingTeam ??
         (await tx.team.create({
           data: {
-            name: teamSeed.name,
+            name,
+            nameNormalized,
+            scopeKey,
             visibility: "public",
             type: "normal",
             isFavorite: teamSeed.isFavorite ?? teamIndex % 2 === 0,
@@ -67,7 +73,7 @@ async function main() {
             now,
             teamIndex,
             projectIndex,
-            fileIndex
+            fileIndex,
           );
 
           return {
@@ -95,7 +101,7 @@ async function main() {
 function buildProjectCreatedAt(
   now: Date,
   teamIndex: number,
-  projectIndex: number
+  projectIndex: number,
 ) {
   const daysOffset = teamIndex * 4 + projectIndex + 2;
   return new Date(now.getTime() - daysOffset * 86400000);
@@ -104,7 +110,7 @@ function buildProjectCreatedAt(
 function buildProjectUpdatedAt(
   now: Date,
   teamIndex: number,
-  projectIndex: number
+  projectIndex: number,
 ) {
   const hoursOffset = teamIndex * 12 + projectIndex * 6 + 3;
   return new Date(now.getTime() - hoursOffset * 3600000);
@@ -114,7 +120,7 @@ function buildFileUpdatedAt(
   now: Date,
   teamIndex: number,
   projectIndex: number,
-  fileIndex: number
+  fileIndex: number,
 ) {
   const hoursOffset = teamIndex * 18 + projectIndex * 6 + fileIndex + 1;
   return new Date(now.getTime() - hoursOffset * 3600000);

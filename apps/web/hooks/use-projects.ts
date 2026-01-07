@@ -25,7 +25,7 @@ async function fetchProjects(teamId: string): Promise<ProjectListItemDTO[]> {
 }
 
 function mapPreview(
-  preview: ProjectListItemDTO["previews"][number]
+  preview: ProjectListItemDTO["previews"][number],
 ): ProjectFilePreview {
   return {
     id: preview.id,

@@ -43,7 +43,7 @@ export function ProjectRow({
           onFocus={prefetchFiles}
           className={cn(
             "group flex items-center gap-4 rounded-md px-1 py-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           )}
         >
           <ProjectMiniGrid previews={previews} />
@@ -78,7 +78,7 @@ function ProjectMiniGrid({ previews }: { previews: ProjectFilePreview[] }) {
       className={cn(
         "relative shrink-0",
         "h-12 w-20 overflow-hidden rounded-sm",
-        "bg-muted/50"
+        "bg-muted/50",
       )}
       aria-label="Miniaturas do projeto"
     >

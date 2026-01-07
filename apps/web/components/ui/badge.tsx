@@ -9,6 +9,7 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
+        /* shadcn defaults */
         default:
           "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
@@ -16,7 +17,33 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+          "bg-transparent text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+
+        /* custom variants */
+        neutral:
+          "bg-[color-mix(in_oklab,var(--foreground)_6%,var(--background))] " +
+          "border-[color-mix(in_oklab,var(--foreground)_14%,transparent)] " +
+          "text-muted-foreground",
+
+        success:
+          "bg-[color-mix(in_oklab,var(--success)_14%,var(--background))] " +
+          "border-[color-mix(in_oklab,var(--success)_28%,transparent)] " +
+          "text-[color-mix(in_oklab,var(--success)_70%,var(--foreground))]",
+
+        info:
+          "bg-[color-mix(in_oklab,var(--info)_14%,var(--background))] " +
+          "border-[color-mix(in_oklab,var(--info)_28%,transparent)] " +
+          "text-[color-mix(in_oklab,var(--info)_70%,var(--foreground))]",
+
+        warning:
+          "bg-[color-mix(in_oklab,var(--warning)_14%,var(--background))] " +
+          "border-[color-mix(in_oklab,var(--warning)_28%,transparent)] " +
+          "text-[color-mix(in_oklab,var(--warning)_70%,var(--foreground))]",
+
+        danger:
+          "bg-[color-mix(in_oklab,var(--destructive)_14%,var(--background))] " +
+          "border-[color-mix(in_oklab,var(--destructive)_28%,transparent)] " +
+          "text-[color-mix(in_oklab,var(--destructive)_70%,var(--foreground))]",
       },
     },
     defaultVariants: {

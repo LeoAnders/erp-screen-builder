@@ -15,6 +15,7 @@
     "db:seed": "npx prisma db seed",
     "db:studio": "npx prisma studio",
     "db:reset": "npx prisma migrate reset",
+    "healthcheck": "ts-node --compiler-options {\\\"module\\\":\\\"CommonJS\\\"} scripts/healthcheck.ts",
     "lint:eslint:check": "eslint app components lib",
     "lint:prettier:check": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",

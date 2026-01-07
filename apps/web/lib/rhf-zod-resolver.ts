@@ -27,7 +27,7 @@ function zodFlattenToRhfErrors(flattened: {
  * nunca vaze como runtime error (sempre vira `formState.errors`).
  */
 export function zodSafeResolver<TFieldValues extends FieldValues>(
-  schema: ZodType<TFieldValues>
+  schema: ZodType<TFieldValues>,
 ): Resolver<TFieldValues> {
   return async (values) => {
     const result = schema.safeParse(values);
@@ -39,7 +39,7 @@ export function zodSafeResolver<TFieldValues extends FieldValues>(
       values: {},
       // RHF espera FieldErrors; para nosso caso (campos planos) basta esse shape.
       errors: zodFlattenToRhfErrors(
-        result.error.flatten((issue) => issue.message)
+        result.error.flatten((issue) => issue.message),
       ) as unknown as FieldErrors<TFieldValues>,
     };
   };

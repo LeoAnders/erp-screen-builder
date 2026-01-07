@@ -1,17 +1,24 @@
 import { z } from "zod";
+import { sanitizeName } from "@/lib/text";
 
 export const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const isUuid = (value: string) => UUID_REGEX.test(value);
 
-export const createTeamSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Nome é obrigatório")
-    .max(50, "Nome deve ter no máximo 50 caracteres"),
-  description: z.string().optional(),
-});
+export const createTeamSchema = z
+  .object({
+    name: z
+      .string()
+      .transform((value) => sanitizeName(value))
+      .refine((value) => value.length > 0, {
+        message: "Nome é obrigatório",
+      }),
+  })
+  .refine((data) => data.name.length <= 50, {
+    message: "Nome deve ter no máximo 50 caracteres",
+    path: ["name"],
+  });
 
 export const createProjectSchema = z
   .object({
@@ -43,7 +50,7 @@ const jsonObjectSchema = z
   .refine(
     (value): value is Record<string, unknown> =>
       !!value && typeof value === "object" && !Array.isArray(value),
-    { message: "schema_json deve ser um objeto" }
+    { message: "schema_json deve ser um objeto" },
   );
 
 export const updateFileSchema = z.object({

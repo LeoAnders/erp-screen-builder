@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       return jsonError(
         403,
         "FORBIDDEN",
-        "Você não pode criar projetos no time pessoal de outro usuário"
+        "Você não pode criar projetos no time pessoal de outro usuário",
       );
     }
 
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
           previews: [],
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -138,7 +138,7 @@ export async function POST(req: Request) {
         return jsonError(
           409,
           "PROJECT_ALREADY_EXISTS",
-          "Já existe um projeto com esse nome nesse time"
+          "Já existe um projeto com esse nome nesse time",
         );
       }
     }

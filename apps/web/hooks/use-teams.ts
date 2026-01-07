@@ -33,6 +33,7 @@ export function useTeams() {
   useEffect(() => {
     if (!hasHydrated) return;
     if (!query.data?.length) return;
+    if (query.isFetching) return;
 
     const teamIds = query.data.map((team) => team.id);
     const personalTeam = query.data.find((team) => team.type === "personal");
@@ -45,7 +46,13 @@ export function useTeams() {
     if (!activeTeamId) {
       setActiveTeamId(personalTeam?.id ?? query.data[0]?.id ?? null);
     }
-  }, [activeTeamId, hasHydrated, query.data, setActiveTeamId]);
+  }, [
+    activeTeamId,
+    hasHydrated,
+    query.data,
+    query.isFetching,
+    setActiveTeamId,
+  ]);
 
   return query;
 }
