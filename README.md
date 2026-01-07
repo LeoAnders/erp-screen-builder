@@ -8,7 +8,7 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-Private-red)]()
 
-Uma ferramenta visual focada em produtividade para a criacao de interfaces de ERP. Este projeto permite gerenciar times, projetos e arquivos de interface, garantindo integridade de dados e versionamento.
+Uma ferramenta visual focada em produtividade para a criação de interfaces de ERP. Este projeto permite gerenciar times, projetos e arquivos de interface, garantindo integridade de dados e versionamento.
 
 ---
 
@@ -34,17 +34,17 @@ Uma ferramenta visual focada em produtividade para a criacao de interfaces de ER
 
 ---
 
-## Setup Rapido
+## Setup Rápido
 
 ### TL;DR (setup completo em um comando)
 
-> Antes, copie os arquivos de ambiente conforme a seção **"3. Configure o ambiente"**.
+> Primeiro configure os arquivos `.env` conforme a seção **"3. Configure o ambiente"**.
 
 ```bash
-cd apps/web && npm install && npm run dev:setup && npm run dev
+npm run setup && cd apps/web && npm run dev
 ```
 
-### 1. Clone o repositorio
+### 1. Clone o repositório
 
 ```bash
 git clone <repo-url>
@@ -80,7 +80,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/erpscreenbuilder"
 AUTH_SECRET="generate-with-openssl-rand-base64-32"
 ```
 
-### 4. Instale dependencias e configure o banco
+### 4. Instale dependências e configure o banco
 
 ```bash
 cd apps/web
@@ -89,7 +89,13 @@ npm run db:migrate
 npm run db:seed
 ```
 
-### 5. Inicie a aplicacao
+Ou use o setup completo no root:
+
+```bash
+npm run setup
+```
+
+### 5. Inicie a aplicação
 
 ```bash
 npm run dev
@@ -99,29 +105,31 @@ Acesse: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Scripts Disponiveis
+## Comandos mais usados
 
-### Root (monorepo)
+### Desenvolvimento
 
-| Script                  | Descricao                   |
-| ----------------------- | --------------------------- |
-| `npm run services:up`   | Inicia container PostgreSQL |
-| `npm run services:stop` | Para o container            |
-| `npm run services:down` | Remove o container          |
-
-### Apps/Web
-
-| Script               | Descricao                                  |
+| Script               | Descrição                                  |
 | -------------------- | ------------------------------------------ |
+| `npm run setup`      | Setup completo (app + DB)                  |
 | `npm run dev`        | Inicia servidor de desenvolvimento         |
 | `npm run dev:setup`  | Setup completo (services + migrate + seed) |
-| `npm run build`      | Build de producao                          |
-| `npm run lint`       | Executa ESLint + Prettier                  |
-| `npm run test:watch` | Executa testes em watch mode               |
+
+### Qualidade
+
+| Script               | Descrição                         |
+| -------------------- | --------------------------------- |
+| `npm run lint`       | Executa ESLint + Prettier         |
+| `npm run test:watch` | Executa testes em watch mode      |
+
+### Banco
+
+| Script               | Descrição                                  |
+| -------------------- | ------------------------------------------ |
 | `npm run db:migrate` | Executa migrations do Prisma               |
 | `npm run db:seed`    | Popula banco com dados iniciais            |
-| `npm run db:studio`  | Abre Prisma Studio                         |
 | `npm run db:reset`   | Reset completo do banco                    |
+| `npm run healthcheck`| Verifica `DATABASE_URL` e conexão com o DB |
 
 ---
 
@@ -133,14 +141,14 @@ erp-screen-builder/
 │   └── web/
 │       ├── app/                 # Rotas e layouts (App Router)
 │       │   ├── not-found.tsx    # 404 global (full screen)
-│       │   ├── (public)/        # Rotas publicas (sem auth)
-│       │   │   └── login/       # Pagina de login
+│       │   ├── (public)/        # Rotas públicas (sem auth)
+│       │   │   └── login/       # Página de login
 │       │   ├── (app)/           # Rotas autenticadas (providers + auth)
 │       │   │   ├── layout.tsx   # Auth + Providers (sem AppShell)
 │       │   │   ├── not-found.tsx# 404 autenticado (full screen, sem Sidebar/Header)
 │       │   │   └── (shell)/     # AppShell (Sidebar/Header)
 │       │   │       ├── dashboard/  # Pagina inicial
-│       │   │       └── projects/   # Gestao de projetos e arquivos
+│       │   │       └── projects/   # Gestão de projetos e arquivos
 │       │   ├── api/             # Route Handlers
 │       │   │   ├── auth/        # NextAuth endpoints
 │       │   │   ├── teams/       # API de times
@@ -149,13 +157,13 @@ erp-screen-builder/
 │       ├── components/          # Componentes React
 │       │   ├── ui/              # Componentes base (Shadcn)
 │       │   ├── layout/          # Header, containers
-│       │   ├── sidebar/         # Navegacao lateral
+│       │   ├── sidebar/         # Navegação lateral
 │       │   └── projects/        # Componentes de projetos
 │       ├── hooks/               # Custom hooks
 │       │   ├── use-teams.ts     # Hook de times
 │       │   ├── use-projects.ts  # Hook de projetos
 │       │   └── use-project-files.ts
-│       ├── lib/                 # Utilitarios e configs
+│       ├── lib/                 # Utilitários e configs
 │       │   ├── stores/          # Zustand stores
 │       │   ├── openapi/         # Schemas OpenAPI
 │       │   └── prisma.ts        # Cliente Prisma
@@ -167,10 +175,11 @@ erp-screen-builder/
     └── docker-compose.yml
 ```
 
+## Decisões de Arquitetura
+
 ### Not Found (404) no App Router
 
-- O projeto usa o mecanismo oficial do Next.js App Router (`notFound()`), garantindo **status 404 real**.
-- Para rotas autenticadas, o `not-found.tsx` em `apps/web/app/(app)/not-found.tsx` renderiza **full screen** sem Sidebar/Header, pois o AppShell fica em `apps/web/app/(app)/(shell)/layout.tsx`.
+- O projeto usa o mecanismo oficial do Next.js App Router (`notFound()`), garantindo status 404 real em rotas inválidas.
 
 ---
 
@@ -192,8 +201,9 @@ User (NextAuth)
 | **Pessoal** | Privado      | Somente o dono pode ler/escrever |
 | **Publico** | Publico      | Qualquer usuario autenticado     |
 
-- Times pessoais sao criados automaticamente no primeiro acesso
-- Partial unique index garante 1 time pessoal por usuario
+- **Times pessoais** são criados automaticamente no primeiro acesso
+- **Times públicos** são globais por `nameNormalized` (sem vínculo de owner)
+- **Unicidade por escopo** é garantida via `scopeKey + nameNormalized`
 
 ### State Management
 
@@ -207,32 +217,36 @@ User (NextAuth)
 
 O seed popula o banco com dados realistas para desenvolvimento:
 
-- **6 times publicos**: Comercial, Financeiro, RH, Entradas, Contabil Fiscal, Custos
-- **~35 projetos** com descricoes
+- **6 times públicos**: Comercial, Financeiro, RH, Entradas, Contábil Fiscal, Custos
+- **~35 projetos** com nomes representativos
 - **~150 arquivos** com templates e editores variados
 
 ---
 
-## Documentacao da API
+## Documentação da API
 
 Acesse a documentacao interativa em:
 
 > Dísponivel apenas em desenvolvimento
 
-- **OpenAPI JSON**: [http://localhost:3000/docs](http://localhost:3000/docs)
+- **UI (Scalar)**: [http://localhost:3000/docs](http://localhost:3000/docs)
+- **OpenAPI JSON**: [http://localhost:3000/api/openapi](http://localhost:3000/api/openapi)
 
 ---
 
-## Desenvolvimento
+## Healthcheck
 
-### Convencoes de Codigo
-
-- ESLint + Prettier para formatacao
-- Conventional Commits em portugues
-- TypeScript strict mode
-
-### Exemplo de Commit
+Para validar `DATABASE_URL` e conexão com o banco:
 
 ```bash
-git commit -m "feat: implementar listagem de projetos por time"
+cd apps/web
+npm run healthcheck
 ```
+
+---
+
+## Contribuição
+
+Este projeto possui padrões de código, commits e fluxo de PR definidos.
+
+- Consulte o guia completo em `CONTRIBUTING.md`
