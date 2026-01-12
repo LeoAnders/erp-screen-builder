@@ -78,6 +78,13 @@ export const FileDetailSchema = z.object({
   revision: z.number().int(),
   updated_by: z.string().nullable(),
   updated_at: z.string().datetime({ offset: true }),
+  origin: z
+    .object({
+      type: z.literal("project"),
+      project_id: z.string().uuid(),
+      project_name: z.string(),
+    })
+    .optional(),
 });
 
 export const FileUpdateResponseSchema = z.object({

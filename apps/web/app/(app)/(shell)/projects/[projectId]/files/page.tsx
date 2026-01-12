@@ -186,7 +186,7 @@ export default function ProjectFilesPage() {
                 <FileRow
                   key={file.id}
                   file={file}
-                  href={`/projects/${projectId}/files/${file.id}`}
+                  href={`/builder/${file.id}`}
                   updatedAtLabel={formatRelative(file.updatedAt)}
                 />
               ))}

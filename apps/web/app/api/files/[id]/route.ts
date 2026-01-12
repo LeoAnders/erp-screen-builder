@@ -19,6 +19,10 @@ type FileResponseSource = {
   updatedAt: Date;
   template?: string | null;
   schemaVersion?: string | null;
+  project: {
+    id: string;
+    name: string;
+  };
 };
 
 function mapFileToResponse(file: FileResponseSource) {
@@ -31,6 +35,11 @@ function mapFileToResponse(file: FileResponseSource) {
     revision: file.revision,
     updated_by: file.updatedBy,
     updated_at: file.updatedAt,
+    origin: {
+      type: "project" as const,
+      project_id: file.project.id,
+      project_name: file.project.name,
+    },
   };
 }
 
