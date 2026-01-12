@@ -160,6 +160,35 @@
   animation: shimmer 1.25s linear infinite;
 }
 
+/* Builder Loading Animations */
+@keyframes builder-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes builder-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.animate-builder-fade-in {
+  animation: builder-fade-in 0.4s ease-out forwards;
+}
+
+.animate-builder-progress {
+  animation: builder-progress 1.4s ease-in-out infinite;
+}
+
 /* Scrollbar Styles */
 .main-scrollbar {
   scrollbar-width: thin; /* Firefox */

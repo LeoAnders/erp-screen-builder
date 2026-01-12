@@ -1,15 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Boxes, Hand, File, MousePointer2, Redo2, Undo2 } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
+import { NotFoundScreen } from "@/components/ui/not-found-screen";
+import { useFileDetail } from "@/hooks/use-file-detail";
+import { useEditorStore } from "@/lib/stores/editor-store";
+import { isApiError } from "@/lib/utils";
 
 import { BottomToolbar } from "./bottom-toolbar";
 import { CanvasPlaceholder } from "./canvas-placeholder";
 import { BuilderSidebar, type RailItem, type SidebarTab } from "./sidebar";
 import type { ToolbarItem, ToolKey } from "./builder.types";
-import { DEFAULT_ORIGIN_HREF, DEFAULT_ORIGIN_LABEL } from "./builder.types";
+import {
+  DEFAULT_DOC_TITLE,
+  DEFAULT_ORIGIN_HREF,
+  DEFAULT_ORIGIN_LABEL,
+} from "./builder.types";
+import { BuilderLoading } from "./builder-loading";
 
 type Props = {
   docId: string;
@@ -39,14 +48,63 @@ export function BuilderShell({
   const [activeTab, setActiveTab] = useState<SidebarTab>("file");
   const [activeTool, setActiveTool] = useState<ToolKey>("select");
 
-  const effectiveDocTitle = docTitle ?? docId;
+  const fileDetailQuery = useFileDetail(docId);
+
+  const storeDocId = useEditorStore((s) => s.docId);
+  const hasInitialized = useEditorStore((s) => s.hasInitialized);
+  const initializeFromFile = useEditorStore((s) => s.initializeFromFile);
+
+  useEffect(() => {
+    if (!fileDetailQuery.data) return;
+
+    if (hasInitialized && storeDocId === docId) return;
+
+    initializeFromFile({ docId, payload: fileDetailQuery.data });
+  }, [
+    docId,
+    fileDetailQuery.data,
+    hasInitialized,
+    initializeFromFile,
+    storeDocId,
+  ]);
+
+  const hasData =
+    fileDetailQuery.data != null || fileDetailQuery.isPlaceholderData;
+  const isColdStart = fileDetailQuery.isPending && !hasData;
+
+  // Loading global: não renderiza o builder até ter dados
+  if (isColdStart) {
+    return <BuilderLoading />;
+  }
+
+  // Error state
+  if (fileDetailQuery.isError) {
+    const error = fileDetailQuery.error;
+    const isNotFound =
+      isApiError(error) && error.error?.code === "FILE_NOT_FOUND";
+
+    if (isNotFound) {
+      return <NotFoundScreen />;
+    }
+  }
+
+  const origin = fileDetailQuery.data?.origin;
+  const effectiveOriginLabel =
+    origin?.type === "project" ? origin.project_name : originLabel;
+  const effectiveOriginHref =
+    origin?.type === "project"
+      ? `/projects/${origin.project_id}/files`
+      : originHref;
+
+  const effectiveDocTitle =
+    fileDetailQuery.data?.name ?? docTitle ?? DEFAULT_DOC_TITLE;
 
   return (
     <div className="relative flex h-full w-full overflow-hidden bg-background text-foreground">
       <BuilderSidebar
         docTitle={effectiveDocTitle}
-        originLabel={originLabel}
-        originHref={originHref}
+        originLabel={effectiveOriginLabel}
+        originHref={effectiveOriginHref}
         railItems={RAIL_ITEMS}
         activeTab={activeTab}
         onTabChange={setActiveTab}

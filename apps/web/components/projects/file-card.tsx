@@ -18,7 +18,7 @@ type FileCardProps = {
 
 export function FileCard({ file, href, className }: FileCardProps) {
   const relativeDate = formatRelative(file.updatedAt ?? file.createdAt);
-  const linkHref = href ?? `/projects/${file.projectId}/files/${file.id}`;
+  const linkHref = href ?? `/builder/${file.id}`;
 
   return (
     <Card

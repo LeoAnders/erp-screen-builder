@@ -35,3 +35,19 @@ export type ProjectFileDTO = {
   editedBy: { name: string } | null;
   kind: string;
 };
+
+export type FileDetailDTO = {
+  id: string;
+  name: string;
+  template: string;
+  schema_version: string;
+  schema_json: unknown;
+  revision: number;
+  updated_by: string | null;
+  updated_at: string;
+  origin?: {
+    type: "project";
+    project_id: string;
+    project_name: string;
+  };
+};
