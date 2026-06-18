@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "npm run services:up && next dev",
     "dev:setup": "npm run services:up && npm run db:migrate && npm run db:seed",
     "build": "next build",

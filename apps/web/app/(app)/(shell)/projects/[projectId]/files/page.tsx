@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { FileText, Plus } from "lucide-react";
 
+import { CreateFileModal } from "@/components/modals/create-file-modal";
+
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { FileCard, FileCardSkeleton } from "@/components/projects/file-card";
@@ -29,6 +31,8 @@ import { useViewPreferenceStore } from "@/lib/stores/view-preference-store";
 export default function ProjectFilesPage() {
   const params = useParams<{ projectId: string }>();
   const projectId = params?.projectId ?? null;
+
+  const [createFileOpen, setCreateFileOpen] = useState(false);
 
   const { filesView, setFilesView } = useViewPreferenceStore();
   const [view, setView] = useState<"cards" | "list">(filesView);
@@ -202,7 +206,16 @@ export default function ProjectFilesPage() {
         description="Visualize e gerencie os arquivos do projeto"
         actionLabel="Novo Arquivo"
         actionIcon={<Plus className="size-4" />}
+        onActionClick={() => setCreateFileOpen(true)}
       />
+
+      {projectId && (
+        <CreateFileModal
+          open={createFileOpen}
+          onOpenChange={setCreateFileOpen}
+          projectId={projectId}
+        />
+      )}
 
       <ListToolbar
         sortBy={sortBy}

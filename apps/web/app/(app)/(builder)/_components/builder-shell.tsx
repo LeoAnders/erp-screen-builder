@@ -11,6 +11,7 @@ import { isApiError } from "@/lib/utils";
 
 import { BottomToolbar } from "./bottom-toolbar";
 import { CanvasPlaceholder } from "./canvas-placeholder";
+import { InspectorPanel } from "./inspector-panel";
 import { BuilderSidebar, type RailItem, type SidebarTab } from "./sidebar";
 import type { ToolbarItem, ToolKey } from "./builder.types";
 import {
@@ -19,6 +20,7 @@ import {
   DEFAULT_ORIGIN_LABEL,
 } from "./builder.types";
 import { BuilderLoading } from "./builder-loading";
+import { mockScreens } from "./sidebar/sidebar.data";
 
 type Props = {
   docId: string;
@@ -47,6 +49,9 @@ export function BuilderShell({
 }: Props) {
   const [activeTab, setActiveTab] = useState<SidebarTab>("file");
   const [activeTool, setActiveTool] = useState<ToolKey>("select");
+  const [selectedScreenId, setSelectedScreenId] = useState<string | null>(
+    () => mockScreens[0]?.id ?? null,
+  );
 
   const fileDetailQuery = useFileDetail(docId);
 
@@ -98,6 +103,10 @@ export function BuilderShell({
 
   const effectiveDocTitle =
     fileDetailQuery.data?.name ?? docTitle ?? DEFAULT_DOC_TITLE;
+  const selectedScreenName =
+    mockScreens.find((screen) => screen.id === selectedScreenId)?.name ??
+    mockScreens[0]?.name ??
+    "CCTRIB100";
 
   return (
     <div className="relative flex h-full w-full overflow-hidden bg-background text-foreground">
@@ -108,12 +117,14 @@ export function BuilderShell({
         railItems={RAIL_ITEMS}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        selectedScreenId={selectedScreenId}
+        onScreenSelect={setSelectedScreenId}
       />
 
       <Separator orientation="vertical" />
 
       <div className="relative min-w-0 flex-1 overflow-hidden">
-        <CanvasPlaceholder />
+        <CanvasPlaceholder selectedScreenId={selectedScreenId} />
 
         <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
           <BottomToolbar
@@ -123,6 +134,8 @@ export function BuilderShell({
           />
         </div>
       </div>
+
+      <InspectorPanel selectedScreenName={selectedScreenName} />
     </div>
   );
 }

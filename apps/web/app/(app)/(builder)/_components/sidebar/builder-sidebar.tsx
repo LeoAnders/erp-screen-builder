@@ -13,6 +13,8 @@ type Props = {
   railItems: RailItem[];
   activeTab: SidebarTab;
   onTabChange: (tab: SidebarTab) => void;
+  selectedScreenId?: string | null;
+  onScreenSelect?: (screenId: string) => void;
 };
 
 export function BuilderSidebar({
@@ -22,9 +24,11 @@ export function BuilderSidebar({
   railItems,
   activeTab,
   onTabChange,
+  selectedScreenId,
+  onScreenSelect,
 }: Props) {
   return (
-    <aside className="flex h-full w-[360px] shrink-0 overflow-hidden bg-sidebar">
+    <aside className="flex h-full w-90 shrink-0 overflow-hidden bg-sidebar">
       <SidebarRail
         items={railItems}
         activeKey={activeTab}
@@ -38,6 +42,8 @@ export function BuilderSidebar({
         originLabel={originLabel}
         originHref={originHref}
         tab={activeTab}
+        selectedScreenId={selectedScreenId}
+        onScreenSelect={onScreenSelect}
       />
     </aside>
   );

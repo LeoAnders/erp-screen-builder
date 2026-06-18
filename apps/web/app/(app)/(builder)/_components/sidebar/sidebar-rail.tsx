@@ -24,7 +24,7 @@ type Props = {
 export function SidebarRail({ items, activeKey, onChange }: Props) {
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex h-full w-[60px] flex-col items-center border-r border-sidebar-border bg-sidebar p-2">
+      <div className="flex h-full w-15 flex-col items-center border-r border-sidebar-border bg-sidebar p-2">
         {/* Logo / Home link */}
         <Tooltip>
           <TooltipTrigger asChild>

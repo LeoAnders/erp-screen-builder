@@ -40,7 +40,7 @@ export function FileScreens({
         aria-label={
           isOpen ? "Colapsar seção de telas" : "Expandir seção de telas"
         }
-        className="group flex w-full cursor-pointer items-center justify-between px-4 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50"
+        className="group flex w-full cursor-pointer items-center justify-between px-4 py-2 text-sm font-medium text-sidebar-foreground hover:bg-[#151515]"
       >
         <div className="flex items-center gap-2">
           <ChevronRight className="size-4 transition-transform group-data-[state=open]:rotate-90" />
@@ -51,7 +51,7 @@ export function FileScreens({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="h-6 w-6 cursor-pointer"
+            className="h-6 w-6 cursor-pointer text-[#4b4b4b] hover:bg-[#1a1a1a] hover:text-[#7a7a7a]"
             onClick={(e) => {
               // Impede que o clique expanda/colapse o bloco ao acionar o botão de adicionar.
               e.stopPropagation();
@@ -71,7 +71,7 @@ export function FileScreens({
         <div
           className={cn(
             "main-scrollbar select-none overflow-y-auto px-2 pb-2 pr-3",
-            isResizable ? "h-full" : "max-h-[176px]",
+            isResizable ? "h-full" : "max-h-44",
           )}
           style={{ scrollbarGutter: "stable both-edges" }}
         >
@@ -88,24 +88,38 @@ export function FileScreens({
                     key={screen.id}
                     type="button"
                     className={cn(
-                      "flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition-colors",
-                      "hover:bg-sidebar-accent",
-                      isSelected && "bg-sidebar-accent",
+                      "flex w-full items-center gap-3 rounded-md border px-2 py-2 text-left text-sm transition-colors",
+                      "border-transparent hover:bg-[#191919]",
+                      isSelected && "border-[#303030] bg-[#242424]",
                       "cursor-pointer",
                     )}
                     onClick={() => onScreenSelect?.(screen.id)}
                   >
-                    <div className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded border border-sidebar-border bg-card">
+                    <div
+                      className={cn(
+                        "flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded border bg-[#111]",
+                        isSelected ? "border-[#343434]" : "border-[#222]",
+                      )}
+                    >
                       {isSelected ? (
-                        <div className="h-full w-full bg-muted-foreground/10 p-1">
-                          <div className="h-1 w-6 rounded bg-muted-foreground/30" />
-                          <div className="mt-1 h-1 w-4 rounded bg-muted-foreground/20" />
+                        <div className="h-full w-full bg-[#1a1a1a] p-1.5">
+                          <div className="h-1 w-8 rounded bg-[#3f3f3f]" />
+                          <div className="mt-1 h-1 w-6 rounded bg-[#313131]" />
+                          <div className="mt-1 h-1 w-5 rounded bg-[#2a2a2a]" />
                         </div>
                       ) : (
-                        <div className="h-full w-full bg-card" />
+                        <div className="h-full w-full bg-[#101010] p-1.5">
+                          <div className="h-1 w-7 rounded bg-[#252525]" />
+                          <div className="mt-1 h-1 w-5 rounded bg-[#202020]" />
+                        </div>
                       )}
                     </div>
-                    <span className="truncate text-[13px] text-sidebar-foreground">
+                    <span
+                      className={cn(
+                        "truncate text-[13px] font-medium",
+                        "text-white",
+                      )}
+                    >
                       {screen.name}
                     </span>
                   </button>
