@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   ResizableHandle,
@@ -25,28 +25,50 @@ import {
 } from "./sidebar.data";
 import type { SidebarProps } from "./sidebar.types";
 
+function collectNodeIds(nodes: typeof mockLayerTree): string[] {
+  return nodes.flatMap((node) => [
+    node.id,
+    ...(node.children ? collectNodeIds(node.children) : []),
+  ]);
+}
+
 export function SidebarPanel({
   docTitle = DEFAULT_DOC_TITLE,
   originLabel = DEFAULT_ORIGIN_LABEL,
   originHref = DEFAULT_ORIGIN_HREF,
   tab,
+  selectedScreenId,
+  onScreenSelect,
 }: SidebarProps) {
   const isComponents = tab === "components";
   const [componentQuery, setComponentQuery] = useState("");
   const [isScreensOpen, setIsScreensOpen] = useState(true);
   const [isLayersOpen, setIsLayersOpen] = useState(true);
 
-  // Estado de seleção de tela
-  const [selectedScreenId, setSelectedScreenId] = useState<string | null>(
-    () => mockScreens[0]?.id ?? null,
-  );
-
   // Estado de seleção e expansão de camadas (lazy init para performance)
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(
     () => mockLayerTree[0]?.id ?? null,
   );
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(
-    () => new Set(mockLayerTree.map((node) => node.id)),
+    () => new Set(collectNodeIds(mockLayerTree)),
+  );
+
+  const activeScreenNode = useMemo(
+    () =>
+      mockLayerTree.find((node) => node.id === selectedScreenId) ??
+      mockLayerTree[0] ??
+      null,
+    [selectedScreenId],
+  );
+
+  const visibleLayerNodes = activeScreenNode ? [activeScreenNode] : [];
+  const visibleLayerIds = new Set(collectNodeIds(visibleLayerNodes));
+  const effectiveSelectedLayerId =
+    selectedLayerId && visibleLayerIds.has(selectedLayerId)
+      ? selectedLayerId
+      : (activeScreenNode?.id ?? null);
+  const effectiveExpandedNodes = new Set(
+    [...expandedNodes].filter((nodeId) => visibleLayerIds.has(nodeId)),
   );
 
   const toggleExpanded = (nodeId: string) => {
@@ -81,7 +103,7 @@ export function SidebarPanel({
                     selectedScreenId={selectedScreenId}
                     isOpen={isScreensOpen}
                     onOpenChange={setIsScreensOpen}
-                    onScreenSelect={setSelectedScreenId}
+                    onScreenSelect={onScreenSelect}
                     variant="resizable"
                   />
                 </ResizablePanel>
@@ -90,9 +112,9 @@ export function SidebarPanel({
 
                 <ResizablePanel defaultSize={72} minSize={30}>
                   <FileLayers
-                    nodes={mockLayerTree}
-                    selectedId={selectedLayerId}
-                    expandedNodes={expandedNodes}
+                    nodes={visibleLayerNodes}
+                    selectedId={effectiveSelectedLayerId}
+                    expandedNodes={effectiveExpandedNodes}
                     onSelect={setSelectedLayerId}
                     onToggleExpand={toggleExpanded}
                     isOpen={isLayersOpen}
@@ -108,14 +130,14 @@ export function SidebarPanel({
                   selectedScreenId={selectedScreenId}
                   isOpen={isScreensOpen}
                   onOpenChange={setIsScreensOpen}
-                  onScreenSelect={setSelectedScreenId}
+                  onScreenSelect={onScreenSelect}
                   variant="compact"
                 />
 
                 <FileLayers
-                  nodes={mockLayerTree}
-                  selectedId={selectedLayerId}
-                  expandedNodes={expandedNodes}
+                  nodes={visibleLayerNodes}
+                  selectedId={effectiveSelectedLayerId}
+                  expandedNodes={effectiveExpandedNodes}
                   onSelect={setSelectedLayerId}
                   onToggleExpand={toggleExpanded}
                   isOpen={isLayersOpen}

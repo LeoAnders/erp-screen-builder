@@ -21,6 +21,8 @@ export type SidebarProps = {
   originLabel?: string;
   originHref?: string;
   tab: SidebarTab;
+  selectedScreenId?: string | null;
+  onScreenSelect?: (screenId: string) => void;
 };
 
 export type SidebarScreen = {

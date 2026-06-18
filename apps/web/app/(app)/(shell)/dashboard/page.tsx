@@ -225,7 +225,7 @@ export default function Page() {
           {recentFiles.map((file) => (
             <CarouselItem
               key={file.id}
-              className="pl-3 shrink-0 basis-[200px] sm:basis-[220px] lg:basis-[240px]"
+              className="basis-50 pl-3 shrink-0 sm:basis-55 lg:basis-60"
             >
               <FileCard file={file} />
             </CarouselItem>
