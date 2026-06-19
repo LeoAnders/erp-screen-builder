@@ -10,7 +10,8 @@ import { useEditorStore } from "@/lib/stores/editor-store";
 import { isApiError } from "@/lib/utils";
 
 import { BottomToolbar } from "./bottom-toolbar";
-import { CanvasPlaceholder } from "./canvas-placeholder";
+import { BuilderCanvas } from "./canvas/builder-canvas";
+import { BuilderDndContext } from "./canvas/builder-dnd-context";
 import { InspectorPanel } from "./inspector-panel";
 import { BuilderSidebar, type RailItem, type SidebarTab } from "./sidebar";
 import type { ToolbarItem, ToolKey } from "./builder.types";
@@ -109,33 +110,35 @@ export function BuilderShell({
     "CCTRIB100";
 
   return (
-    <div className="relative flex h-full w-full overflow-hidden bg-background text-foreground">
-      <BuilderSidebar
-        docTitle={effectiveDocTitle}
-        originLabel={effectiveOriginLabel}
-        originHref={effectiveOriginHref}
-        railItems={RAIL_ITEMS}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        selectedScreenId={selectedScreenId}
-        onScreenSelect={setSelectedScreenId}
-      />
+    <BuilderDndContext>
+      <div className="relative flex h-full w-full overflow-hidden bg-background text-foreground">
+        <BuilderSidebar
+          docTitle={effectiveDocTitle}
+          originLabel={effectiveOriginLabel}
+          originHref={effectiveOriginHref}
+          railItems={RAIL_ITEMS}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          selectedScreenId={selectedScreenId}
+          onScreenSelect={setSelectedScreenId}
+        />
 
-      <Separator orientation="vertical" />
+        <Separator orientation="vertical" />
 
-      <div className="relative min-w-0 flex-1 overflow-hidden">
-        <CanvasPlaceholder selectedScreenId={selectedScreenId} />
+        <div className="relative min-w-0 flex-1 overflow-hidden">
+          <BuilderCanvas routineName={selectedScreenName} />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
-          <BottomToolbar
-            items={TOOLBAR_ITEMS}
-            activeKey={activeTool}
-            onChange={setActiveTool}
-          />
+          <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
+            <BottomToolbar
+              items={TOOLBAR_ITEMS}
+              activeKey={activeTool}
+              onChange={setActiveTool}
+            />
+          </div>
         </div>
-      </div>
 
-      <InspectorPanel selectedScreenName={selectedScreenName} />
-    </div>
+        <InspectorPanel selectedScreenName={selectedScreenName} />
+      </div>
+    </BuilderDndContext>
   );
 }

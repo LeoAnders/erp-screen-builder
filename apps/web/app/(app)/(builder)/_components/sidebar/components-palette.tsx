@@ -12,9 +12,11 @@ import {
   Table,
   Type,
 } from "lucide-react";
+import { useDraggable } from "@dnd-kit/core";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
 import type {
   ComponentCategory,
   SidebarComponent,
@@ -72,34 +74,11 @@ export function ComponentsPalette({
                 </div>
                 <div className="space-y-1.5">
                   {items.map((item) => (
-                    <button
+                    <PaletteItem
                       key={item.id}
-                      type="button"
-                      className={cn(
-                        "group flex w-full cursor-grab items-center justify-between gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent/30 px-2 py-2 text-left transition-colors",
-                        "hover:bg-sidebar-accent/60 active:cursor-grabbing",
-                      )}
-                      onClick={() => onComponentSelect?.(item)}
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div
-                          className={cn(
-                            "flex size-11 shrink-0 items-center justify-center rounded-xl border border-sidebar-border",
-                          )}
-                        >
-                          <div className="flex size-8 items-center justify-center rounded-lg">
-                            <ComponentIcon type={item.id} />
-                          </div>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="truncate text-[13px] font-medium text-sidebar-foreground">
-                            {item.name}
-                          </div>
-                        </div>
-                      </div>
-
-                      <GripVertical className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-70" />
-                    </button>
+                      item={item}
+                      onSelect={onComponentSelect}
+                    />
                   ))}
                 </div>
               </div>
@@ -108,6 +87,52 @@ export function ComponentsPalette({
         </div>
       </div>
     </div>
+  );
+}
+
+// -------------------------------------------------
+// Palette item — draggable via dnd-kit
+// -------------------------------------------------
+
+type PaletteItemProps = {
+  item: SidebarComponent;
+  onSelect?: (component: SidebarComponent) => void;
+};
+
+function PaletteItem({ item, onSelect }: PaletteItemProps) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `palette-${item.id}`,
+    data: { source: "palette", kind: item.id },
+  });
+
+  return (
+    <button
+      ref={setNodeRef}
+      type="button"
+      {...attributes}
+      {...listeners}
+      style={{ opacity: isDragging ? 0.4 : 1 }}
+      onClick={() => onSelect?.(item)}
+      className={cn(
+        "group flex w-full cursor-grab items-center justify-between gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent/30 px-2 py-2 text-left transition-colors",
+        "hover:bg-sidebar-accent/60 active:cursor-grabbing",
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-sidebar-border">
+          <div className="flex size-8 items-center justify-center rounded-lg">
+            <ComponentIcon type={item.id} />
+          </div>
+        </div>
+        <div className="min-w-0">
+          <div className="truncate text-[13px] font-medium text-sidebar-foreground">
+            {item.name}
+          </div>
+        </div>
+      </div>
+
+      <GripVertical className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-70" />
+    </button>
   );
 }
 
